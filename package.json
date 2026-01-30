@@ -6,6 +6,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "build": "pnpm migration:generate && next build",
     "dev": "pnpm services:up && ./infra/wait-for.sh localhost 5432 && pnpm migration:up && next dev",
     "lint:check": "prettier --check .",
     "lint:fix": "prettier --write .",
