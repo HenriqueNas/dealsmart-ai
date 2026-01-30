@@ -10,11 +10,11 @@
  *   const users = await prisma.user.findMany();
  */
 
-import { PrismaClient } from './generated';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from './generated/client';
 
 // Declare global type for prisma in development
 declare global {
-  // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
 }
 
@@ -22,12 +22,8 @@ declare global {
  * Create Prisma Client instance with configuration
  */
 function createPrismaClient(): PrismaClient {
-  return new PrismaClient({
-    log:
-      process.env.NODE_ENV === 'development'
-        ? ['query', 'error', 'warn']
-        : ['error'],
-  });
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+  return new PrismaClient({ adapter });
 }
 
 /**
@@ -35,8 +31,7 @@ function createPrismaClient(): PrismaClient {
  * - In production: Create a new client for each serverless function instance
  * - In development: Reuse the same client to prevent too many connections
  */
-export const prisma: PrismaClient =
-  globalThis.prisma ?? createPrismaClient();
+export const prisma: PrismaClient = globalThis.prisma ?? createPrismaClient();
 
 // In development, store the client in global to persist across hot reloads
 if (process.env.NODE_ENV !== 'production') {
