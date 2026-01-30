@@ -1,0 +1,49 @@
+{
+  'mcp-server-github': {
+    enabled: true,
+    remote: false,
+    settings: {
+      github_personal_access_token: 'PERSONAL_AC  ',
+    },
+  },
+  'mcp-server-context7': {
+    enabled: true,
+    settings: {
+      context7_api_key: 'CONTEXT7_API_KEY',
+    },
+  },
+  'Prisma-Remote': {
+    command: 'bunx',
+    args: ['-y', 'mcp-remote', 'https://mcp.prisma.io/mcp'],
+  },
+  filesystem: {
+    command: 'bunx',
+    args: ['-y', '@modelcontextprotocol/server-filesystem'],
+  },
+  'postgres-context-server': {
+    settings: {
+      database_url: 'postgresql://postgres:postgres@localhost:5432/dealsmart',
+    },
+  },
+  // ### uvx commands
+  // need to install uv (brew install python && brew install uvx && brew install uv)
+  postgres: {
+    command: 'uvx',
+    args: ['postgres-mcp', '--access-mode=unrestricted'],
+    env: {
+      DATABASE_URI: 'postgresql://username:password@localhost:5432/dbname',
+    },
+  },
+  'mcp-server-docker': {
+    command: 'uvx',
+    args: ['mcp-server-docker'],
+  },
+  fetch: {
+    command: 'uvx',
+    args: ['mcp-server-fetch'],
+  },
+  'mcp-server-git': {
+    command: 'uvx',
+    args: ['mcp-server-git'],
+  },
+}
