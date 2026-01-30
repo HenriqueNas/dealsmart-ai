@@ -8,6 +8,14 @@ This is **NOT** a toy demo. The codebase follows production SaaS patterns suitab
 
 ## Overview
 
+### Development Approach
+
+This project follows an **API-first development strategy**:
+- Complete backend API development (Phases 1-8) before frontend implementation
+- All API endpoints fully tested and documented before UI development begins
+- Frontend consumes stable, tested APIs with clear contracts
+- Enables parallel development and multiple client support (web, mobile, integrations)
+
 The DealSmart AI Communications Hub enables dealership staff to:
 - View and manage customer conversations
 - Collaborate with AI on response generation
