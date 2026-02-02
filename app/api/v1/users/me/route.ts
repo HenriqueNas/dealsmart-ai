@@ -1,6 +1,9 @@
 export const runtime = 'nodejs';
 
-import { updateUserSchema } from '@/lib/schemas/user.schema';
+import {
+  deleteAccountSchema,
+  updateUserSchema,
+} from '@/lib/schemas/user.schema';
 import { errorResponse, successResponse } from '@/lib/utils/api-response';
 import { requireAuth } from '@/server/middleware/auth.middleware';
 import { userService } from '@/server/services/user.service';
@@ -34,6 +37,27 @@ export async function PATCH(request: NextRequest) {
     const user = await userService.updateCurrentUser(session.user.id, input);
 
     return successResponse(user);
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
+
+/**
+ * DELETE /api/v1/users/me
+ * Delete current authenticated user account
+ *
+ * Requires password confirmation in the request body.
+ * This action is irreversible.
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await requireAuth();
+    const body = await request.json();
+    const { password } = deleteAccountSchema.parse(body);
+
+    await userService.deleteOwnAccount(session.user.id, password);
+
+    return successResponse({ message: 'Account deleted successfully' });
   } catch (error) {
     return errorResponse(error);
   }

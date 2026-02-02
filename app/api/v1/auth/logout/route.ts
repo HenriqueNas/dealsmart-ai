@@ -1,18 +1,21 @@
 export const runtime = 'nodejs';
 
-import { signOut } from '@/app/api/auth/[...nextauth]/auth';
-import { errorResponse, successResponse } from '@/lib/utils/api-response';
+import { successResponse } from '@/lib/utils/api-response';
+import { cookies } from 'next/headers';
 
 /**
  * POST /api/v1/auth/logout
  * Sign out the current user
+ *
+ * For JWT-based sessions, this clears the session cookie.
+ * For API clients using Bearer tokens, they should discard
+ * the tokens client-side.
  */
 export async function POST() {
-  try {
-    await signOut({ redirect: false });
+  // Clear the NextAuth session cookie
+  const cookieStore = await cookies();
+  cookieStore.delete('next-auth.session-token');
+  cookieStore.delete('__Secure-next-auth.session-token');
 
-    return successResponse({ message: 'Logout successful' });
-  } catch (error) {
-    return errorResponse(error);
-  }
+  return successResponse({ message: 'Logout successful' });
 }
