@@ -19,6 +19,7 @@ We prioritize backend API development before frontend implementation. This strat
 - **Documentation**: API documentation serves as the source of truth
 
 **Development Flow**:
+
 1. **Phases 1-8**: Complete backend API development
    - [ ] Infrastructure, authentication, core architecture
    - [ ] All API routes with full business logic
@@ -41,12 +42,14 @@ We prioritize backend API development before frontend implementation. This strat
 **Goal**: Establish the base infrastructure and development environment.
 
 ### 1.1 Environment Configuration
+
 - Set up environment variables structure
   - [x] Create comprehensive `.env.example`
   - [x] Set up `.env.development` for local development
   - [x] Set up `.nvmrc` file
 
 ### 1.2 Database Setup
+
 - Configure PostgreSQL database
   - [x] Set up Docker Compose for local development
   - [x] Configure connection pooling
@@ -64,6 +67,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [x] Add unique constraints
 
 ### 1.3 Project Structure
+
 - Create folder structure
   - [x] `app/` - Next.js App Router
   - [x] `infra/` - Infrastructure code
@@ -74,6 +78,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [x] Test imports across layers
 
 ### 1.4 Development Tooling
+
 - Configure TypeScript strict mode
   - [x] Enable all strict flags
   - [x] Configure module resolution
@@ -92,6 +97,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [x] Development server scripts
 
 **Deliverables**:
+
 - Working local development environment
 - Database running in Docker
 - Prisma schema initialized
@@ -105,17 +111,19 @@ We prioritize backend API development before frontend implementation. This strat
 **Goal**: Implement secure user authentication and role-based access control APIs.
 
 ### 2.1 NextAuth Configuration
+
 - Install and configure NextAuth.js
   - [x] Set up NextAuth API route handler
   - [x] Configure session strategy (JWT)
   - [x] Set up secret key management
 - Configure authentication providers
-  - [ ] Google OAuth provider
+  - [x] HubSpot OAuth provider
   - [x] Credentials provider (email/password)
   - [x] Configure callback URLs
   - [x] Set up provider-specific scopes
 
 ### 2.2 User Management API
+
 - Implement password hashing
   - [x] Use bcrypt with appropriate salt rounds
   - [x] Create password utility functions
@@ -125,11 +133,11 @@ We prioritize backend API development before frontend implementation. This strat
   - [x] Implement email validation
   - [x] Check for duplicate users
   - [x] Hash passwords before storage
-  - [ ] Return JWT token
+  - [x] Return JWT token
 - Create user login API
   - [x] `POST /api/v1/auth/login` endpoint
   - [x] Verify credentials
-  - [ ] Generate JWT tokens
+  - [x] Generate JWT tokens
   - [x] Return session data
 - Implement session management API
   - [x] Create session validation middleware
@@ -138,6 +146,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [x] `POST /api/v1/auth/logout` endpoint
 
 ### 2.3 Role-Based Access Control (RBAC) API
+
 - Define user roles
   - [x] User (basic access)
   - [x] Creator (content management)
@@ -145,13 +154,14 @@ We prioritize backend API development before frontend implementation. This strat
 - Create authorization middleware
   - [x] `requireAuth` - Require authentication
   - [x] `requireRole` - Require specific role
-  - [ ] `requireOwnership` - Verify resource ownership
+  - [x] `requireOwnership` - Verify resource ownership
 - Implement permission checks
   - [x] Create permission utility functions
-  - [ ] Define role hierarchies
-  - [ ] Implement resource-level permissions
+  - [x] Define role hierarchies
+  - [x] Implement resource-level permissions
 
 ### 2.4 Age Verification API
+
 - Create age verification API
   - [x] `POST /api/v1/users/verify-age` endpoint
   - [x] Validate date of birth
@@ -163,13 +173,15 @@ We prioritize backend API development before frontend implementation. This strat
   - [x] Return appropriate errors for unverified users
 
 ### 2.5 User Profile API
+
 - Build user profile endpoints
   - [x] `GET /api/v1/users/me` - Get current user
   - [x] `PATCH /api/v1/users/me` - Update profile
-  - [ ] `DELETE /api/v1/users/me` - Delete account
+  - [x] `DELETE /api/v1/users/me` - Delete account
   - [x] `GET /api/v1/users/:id` - Get user by ID (admin only)
 
 **Deliverables**:
+
 - Fully functional authentication API
 - User registration and login endpoints working
 - JWT-based sessions implemented
@@ -184,6 +196,7 @@ We prioritize backend API development before frontend implementation. This strat
 **Goal**: Build the layered backend architecture with service and repository patterns.
 
 ### 3.1 Base Classes & Utilities
+
 - Create base repository class
   - [ ] Common CRUD operations
   - [ ] Transaction handling
@@ -200,6 +213,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Error logging with stack traces
 
 ### 3.2 Error Handling System
+
 - Create custom error classes
   - [x] `ValidationError` (400)
   - [x] `UnauthorizedError` (401)
@@ -214,6 +228,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Stack trace sanitization
 
 ### 3.3 Middleware Layer
+
 - Create validation middleware
   - [x] Zod schema validation
   - [x] Request body validation
@@ -231,6 +246,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Correlation ID generation
 
 ### 3.4 Repository Layer
+
 - Create user repository
   - [x] Find by ID, email, username
   - [x] Create, update, delete operations
@@ -243,6 +259,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Include/select helpers
 
 ### 3.5 Service Layer
+
 - Create user service
   - [x] User registration logic
   - [x] User profile management
@@ -255,6 +272,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Event logging
 
 **Deliverables**:
+
 - Complete backend architecture implemented
 - All layers properly separated
 - Error handling system functional
@@ -269,6 +287,7 @@ We prioritize backend API development before frontend implementation. This strat
 **Goal**: Implement versioned API routes with proper structure and comprehensive endpoints.
 
 ### 4.1 API Structure
+
 - Create versioned API structure
   - [x] `/api/v1/` base route
   - [x] Health check endpoints
@@ -281,6 +300,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [x] Consistent field naming
 
 ### 4.2 User Management API Endpoints
+
 - Implement user CRUD operations
   - [ ] `GET /api/v1/users` - List users (admin, paginated)
   - [x] `GET /api/v1/users/:id` - Get user by ID
@@ -292,6 +312,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Filter by role, verification status
 
 ### 4.3 Status & Monitoring Endpoints
+
 - `GET /api/v1/status`
   - [x] Database connection status
   - [x] Service health checks
@@ -303,6 +324,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Database version
 
 ### 4.4 Input Validation Schemas
+
 - Create Zod schemas for all endpoints
   - [x] User registration schema
   - [x] User update schema
@@ -315,6 +337,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [x] Type-safe request handlers
 
 **Deliverables**:
+
 - Complete v1 API structure
 - All user management endpoints functional
 - All endpoints validated with Zod
@@ -329,6 +352,7 @@ We prioritize backend API development before frontend implementation. This strat
 **Goal**: Build the creator profile and content management API.
 
 ### 5.1 Database Schema Extensions
+
 - Create Creator model
   - [ ] Profile information
   - [ ] Bio and social links
@@ -350,6 +374,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Content to Tags (many-to-many)
 
 ### 5.2 Creator Profile API
+
 - Create creator repository and service
   - [ ] CRUD operations
   - [ ] Search by username
@@ -364,6 +389,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] `GET /api/v1/creators/:id/stats` - Get statistics
 
 ### 5.3 Content Management API
+
 - Create content repository and service
   - [ ] CRUD operations
   - [ ] Query by creator
@@ -379,6 +405,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] `GET /api/v1/creators/:id/content` - List creator content
 
 ### 5.4 Content Discovery API
+
 - Implement content filtering and search
   - [ ] `GET /api/v1/explore` - Discover content
   - [ ] `GET /api/v1/content/search?q=term` - Search content
@@ -390,6 +417,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] `GET /api/v1/tags/:id/content` - Content by tag
 
 **Deliverables**:
+
 - Creator profile API functional
 - Content creation and management API working
 - Content discovery and filtering API operational
@@ -404,6 +432,7 @@ We prioritize backend API development before frontend implementation. This strat
 **Goal**: Implement subscription management and payment processing APIs.
 
 ### 6.1 Database Schema for Payments
+
 - Create Subscription model
   - [ ] User and creator relation
   - [ ] Subscription tier
@@ -424,6 +453,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Timestamps
 
 ### 6.2 Stripe Integration
+
 - Set up Stripe integration layer
   - [ ] Create Stripe client wrapper
   - [ ] Configure webhook endpoints
@@ -440,6 +470,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Process refunds
 
 ### 6.3 Subscription Management API
+
 - Create subscription repository and service
   - [ ] CRUD operations
   - [ ] Query by user/creator
@@ -454,6 +485,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] `DELETE /api/v1/subscriptions/:id` - Cancel subscription
 
 ### 6.4 Webhook Handling API
+
 - Implement Stripe webhooks
   - [ ] `POST /api/v1/webhooks/stripe` - Stripe webhook handler
   - [ ] Payment succeeded event
@@ -468,6 +500,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Log all webhook events
 
 ### 6.5 Payout API
+
 - Create payout tracking service
   - [ ] Calculate creator earnings
   - [ ] Track platform fees
@@ -479,6 +512,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] `GET /api/v1/payouts/:id` - Get payout details
 
 **Deliverables**:
+
 - Stripe integration fully functional
 - Subscription API operational
 - Payment processing API working
@@ -493,6 +527,7 @@ We prioritize backend API development before frontend implementation. This strat
 **Goal**: Integrate with HubSpot CRM for customer relationship management.
 
 ### 7.1 HubSpot Client Setup
+
 - Create HubSpot integration wrapper
   - [ ] API client with authentication
   - [ ] Request/response types
@@ -504,6 +539,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Token refresh logic
 
 ### 7.2 Contact Synchronization API
+
 - Create contact sync service
   - [ ] Sync user to HubSpot contact
   - [ ] Update contact on user changes
@@ -518,6 +554,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] On subscription purchase
 
 ### 7.3 Deal Tracking API
+
 - Create deal sync service
   - [ ] Create deal on subscription
   - [ ] Update deal on payment
@@ -529,6 +566,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] `GET /api/v1/integrations/hubspot/deals/:id` - Get deal
 
 ### 7.4 Activity Logging API
+
 - Log user activities to HubSpot
   - [ ] Content views
   - [ ] Subscription events
@@ -539,6 +577,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] `GET /api/v1/integrations/hubspot/activities` - List activities
 
 ### 7.5 Reporting & Analytics API
+
 - Build HubSpot reporting endpoints
   - [ ] `GET /api/v1/integrations/hubspot/metrics` - Sync metrics
   - [ ] Revenue metrics sync
@@ -546,6 +585,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Custom properties management
 
 **Deliverables**:
+
 - HubSpot integration fully functional
 - Contact sync API working
 - Deal tracking API operational
@@ -560,6 +600,7 @@ We prioritize backend API development before frontend implementation. This strat
 **Goal**: Implement AI-assisted response generation and conversation management API.
 
 ### 8.1 Database Schema for Conversations
+
 - Create Conversation model
   - [ ] Customer information
   - [ ] Dealership staff assignment
@@ -577,6 +618,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Feedback and rating
 
 ### 8.2 AI Provider Integration
+
 - Create AI service abstraction
   - [ ] Provider-agnostic interface
   - [ ] Support for multiple LLM providers (OpenAI, Anthropic, etc.)
@@ -589,6 +631,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Response formatting
 
 ### 8.3 Conversation Management API
+
 - Create conversation repository and service
   - [ ] CRUD operations
   - [ ] Query by customer/staff
@@ -604,6 +647,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] `POST /api/v1/conversations/:id/close` - Close conversation
 
 ### 8.4 AI Response Generation API
+
 - Create message service
   - [ ] Send message
   - [ ] Get AI suggestion
@@ -621,6 +665,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] `POST /api/v1/messages/:id/feedback` - Rate AI suggestion
 
 ### 8.5 Real-Time Updates API
+
 - Implement polling mechanism
   - [ ] `GET /api/v1/conversations/:id/messages?since=timestamp` - Poll for new messages
   - [ ] `GET /api/v1/conversations/:id/status` - Get status updates
@@ -629,6 +674,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] `PATCH /api/v1/notifications/:id/read` - Mark as read
 
 **Deliverables**:
+
 - AI provider integration working
 - Conversation API functional
 - AI suggestion API operational
@@ -646,6 +692,7 @@ We prioritize backend API development before frontend implementation. This strat
 **Note**: At this point, all backend APIs are complete, tested, and documented. Frontend development can proceed with confidence.
 
 ### 9.1 Design System
+
 - Create design tokens
   - [ ] Colors, typography, spacing
   - [ ] Component variants
@@ -661,6 +708,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Loading states and skeletons
 
 ### 9.2 Authentication UI
+
 - Build auth pages
   - [ ] Login page with OAuth buttons
   - [ ] Registration page with validation
@@ -673,6 +721,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Error messages
 
 ### 9.3 User Dashboard
+
 - Build user dashboard
   - [ ] Profile overview (fetch from `/api/v1/users/me`)
   - [ ] Subscription management (consuming `/api/v1/subscriptions`)
@@ -685,6 +734,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Account deletion
 
 ### 9.4 Creator Dashboard
+
 - Build creator dashboard
   - [ ] Analytics overview (from `/api/v1/creators/:id/stats`)
   - [ ] Content management (consuming `/api/v1/content`)
@@ -701,6 +751,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Message subscribers
 
 ### 9.5 Public Pages
+
 - Build landing page
   - [ ] Hero section
   - [ ] Features showcase
@@ -718,6 +769,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Social links
 
 ### 9.6 Admin Panel
+
 - Build admin dashboard
   - [ ] Platform statistics (from `/api/v1/admin/stats`)
   - [ ] User management (consuming `/api/v1/users`)
@@ -734,6 +786,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Ban creators
 
 ### 9.7 Conversation Interface
+
 - Build conversation UI
   - [ ] Conversation list (from `/api/v1/conversations`)
   - [ ] Message thread view
@@ -741,6 +794,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Real-time message updates (polling `/api/v1/conversations/:id/messages`)
 
 **Deliverables**:
+
 - Complete UI for all features
 - Responsive design
 - Accessible components
@@ -756,6 +810,7 @@ We prioritize backend API development before frontend implementation. This strat
 **Goal**: Ensure quality, performance, and successful production deployment.
 
 ### 10.1 Comprehensive Testing
+
 - Backend API tests (should be complete from previous phases)
   - [ ] Unit tests for services and repositories
   - [ ] Integration tests for all API endpoints
@@ -775,6 +830,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] OWASP top 10 validation
 
 ### 10.2 Performance Optimization
+
 - Backend optimization
   - [ ] Database query optimization
   - [ ] Add missing indexes
@@ -790,6 +846,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Implement ISR (Incremental Static Regeneration) where applicable
 
 ### 10.3 Monitoring & Logging
+
 - Set up application monitoring
   - [ ] Error tracking (Sentry)
   - [ ] Performance monitoring (Vercel Analytics)
@@ -807,6 +864,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Failed payment alerts
 
 ### 10.4 Documentation
+
 - Complete API documentation
   - [ ] OpenAPI/Swagger spec for all endpoints
   - [ ] Endpoint descriptions
@@ -825,6 +883,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Troubleshooting guide
 
 ### 10.5 Production Deployment
+
 - Set up production environment
   - [ ] Provision PostgreSQL database (Neon, Supabase, or RDS)
   - [ ] Configure Vercel project
@@ -849,6 +908,7 @@ We prioritize backend API development before frontend implementation. This strat
   - [ ] Load testing with real traffic
 
 **Deliverables**:
+
 - Comprehensive test coverage (backend + frontend)
 - Optimized performance
 - Monitoring and logging operational
@@ -861,6 +921,7 @@ We prioritize backend API development before frontend implementation. This strat
 ## Ongoing Maintenance & Improvements
 
 ### Continuous Tasks
+
 - Monitor application health and performance
 - Review and respond to user feedback
 - Security updates and patches
@@ -869,6 +930,7 @@ We prioritize backend API development before frontend implementation. This strat
 - API versioning for breaking changes
 
 ### Future Enhancements
+
 - Mobile app development (consuming existing APIs)
 - Advanced analytics dashboard
 - Messaging system improvements
@@ -884,6 +946,7 @@ We prioritize backend API development before frontend implementation. This strat
 ## Success Metrics
 
 ### Technical Metrics
+
 - API response time < 200ms (p95)
 - Database query time < 50ms (p95)
 - Test coverage > 80%
@@ -892,6 +955,7 @@ We prioritize backend API development before frontend implementation. This strat
 - Frontend load time < 2s (p95)
 
 ### Business Metrics
+
 - User registration conversion rate
 - Creator onboarding completion rate
 - Subscription conversion rate
@@ -904,6 +968,7 @@ We prioritize backend API development before frontend implementation. This strat
 ## Risk Mitigation
 
 ### Technical Risks
+
 - **Database downtime**: Implement connection pooling and retry logic
 - **API rate limits**: Implement caching and request queuing
 - **Payment failures**: Implement retry logic and manual reconciliation
@@ -911,6 +976,7 @@ We prioritize backend API development before frontend implementation. This strat
 - **API breaking changes**: Use API versioning and deprecation notices
 
 ### Security Risks
+
 - **Data breaches**: Implement encryption at rest and in transit
 - **SQL injection**: Use Prisma ORM with parameterized queries
 - **XSS attacks**: Sanitize all user inputs, use React's built-in XSS protection
@@ -930,6 +996,7 @@ This roadmap provides a comprehensive guide for implementing the DealSmart AI Co
 - **Flexibility**: APIs can serve multiple clients (web, mobile, third-party integrations)
 
 **Key Principles**:
+
 - API-first development
 - Test early and often
 - Document as you build
@@ -938,6 +1005,7 @@ This roadmap provides a comprehensive guide for implementing the DealSmart AI Co
 - User experience is paramount
 
 **Next Steps**:
+
 1. Review and approve this API-first roadmap
 2. Set up project tracking (GitHub Projects, Jira, etc.)
 3. Begin Phase 1: Foundation & Infrastructure Setup
