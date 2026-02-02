@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from '../ui/Card';
 import { Input } from '../ui/Input';
+import { parse } from 'node:path';
 
 interface FormErrors {
   code?: string;
@@ -38,6 +39,7 @@ export function CreatorUpgradeSection() {
   const validateCode = useCallback(async (codeToValidate: string) => {
     // First check format
     const parseResult = inviteCodeSchema.safeParse(codeToValidate);
+
     if (!parseResult.success) {
       setValidationResult({ valid: false, message: 'Invalid code format' });
       return;

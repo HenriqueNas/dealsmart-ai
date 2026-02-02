@@ -5,9 +5,14 @@ import { Button } from '../ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { Copy, CopyCheck } from 'lucide-react';
 import { useState } from 'react';
+import { inviteCodeSchema } from '@/lib/schemas/invite.schema';
 
 export function InviteCreator() {
   const { user, isLoading } = useAuth();
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (isLoading) {
     return (
@@ -29,28 +34,85 @@ export function InviteCreator() {
     return null;
   }
 
-  const [isCopied, setIsCopied] = useState(false);
+  const handleGenerateInviteCode = async () => {
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/v1/invites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetRole: 'CREATOR' }),
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(
+          data.error?.message || 'Failed to generate invite code'
+        );
+      }
+
+      setInviteCode(data.data.invite.code);
+    } catch (err) {
+      const error = err as Error;
+      console.log(error);
+      setError(error.message || 'Failed to generate invite code');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleCopyInviteCode = () => {
-    const tempInviteCode = 'TEMP-CREATOR-INVITE-1234'; // TODO: This should be generated securely
-    navigator.clipboard.writeText(tempInviteCode);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+    if (inviteCode) {
+      navigator.clipboard.writeText(inviteCode);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    }
   };
 
   return (
     <Card>
       <CardHeader className="border-none flex items-center justify-between">
-        <CardTitle>Invite User to be an Creator</CardTitle>
-        <Button variant="secondary" size="sm" onClick={handleCopyInviteCode}>
-          {isCopied ? 'Copied!' : 'Copy temporary invitation code'}
-          {isCopied ? (
-            <CopyCheck className="h-4 w-4 text-green-500" />
-          ) : (
-            <Copy className="h-4 w-4 text-foreground/50" />
-          )}
-        </Button>
+        <CardTitle>Invite User to be a Creator</CardTitle>
+        {inviteCode && (
+          <Button variant="secondary" size="sm" onClick={handleCopyInviteCode}>
+            {isCopied ? 'Copied!' : 'Copy invitation code'}
+            {isCopied ? (
+              <CopyCheck className="h-4 w-4 text-green-500" />
+            ) : (
+              <Copy className="h-4 w-4 text-foreground/50" />
+            )}
+          </Button>
+        )}
+        {!inviteCode && (
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleGenerateInviteCode}
+            isLoading={isGenerating}
+            disabled={isGenerating}
+          >
+            Generate Invitation Code
+          </Button>
+        )}
       </CardHeader>
+      {inviteCode && (
+        <CardContent>
+          <div className="flex items-center gap-3">
+            <code className="flex-1 rounded bg-foreground/5 px-4 py-2 font-mono text-sm font-medium text-foreground">
+              {inviteCode}
+            </code>
+          </div>
+        </CardContent>
+      )}
+      {error && (
+        <CardContent>
+          <div className="rounded-none bg-red-500/10 px-4 py-3 text-sm text-red-400">
+            {error}
+          </div>
+        </CardContent>
+      )}
     </Card>
   );
 }
