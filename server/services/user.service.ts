@@ -5,8 +5,13 @@ import type {
   UserRole,
 } from '@/lib/schemas/user.schema';
 import type { SafeUser } from '@/lib/types';
+import { verifyPassword } from '@/lib/utils/password';
 import { userRepository } from '@/server/repositories/user.repository';
-import { ForbiddenError, NotFoundError } from '@/server/utils/errors';
+import {
+  ForbiddenError,
+  NotFoundError,
+  UnauthorizedError,
+} from '@/server/utils/errors';
 
 /**
  * Remove sensitive fields from user object
@@ -113,9 +118,11 @@ class UserService {
       throw new ForbiddenError('Only admins can delete users');
     }
 
-    // Prevent self-deletion
+    // Prevent self-deletion via admin route
     if (id === requesterId) {
-      throw new ForbiddenError('You cannot delete your own account');
+      throw new ForbiddenError(
+        'Use DELETE /api/v1/users/me to delete your own account'
+      );
     }
 
     const user = await userRepository.findById(id);
@@ -124,6 +131,32 @@ class UserService {
     }
 
     await userRepository.delete(id);
+  }
+
+  /**
+   * Delete own account (self-service with password confirmation)
+   */
+  async deleteOwnAccount(userId: string, password: string): Promise<void> {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundError('User', userId);
+    }
+
+    // Verify password before deletion
+    const userWithPassword = user as User & { passwordHash?: string };
+    if (!userWithPassword.passwordHash) {
+      throw new ForbiddenError(
+        'Cannot delete account created via OAuth. Please contact support.'
+      );
+    }
+
+    const isValid = await verifyPassword(password, userWithPassword.passwordHash);
+    if (!isValid) {
+      throw new UnauthorizedError('Invalid password');
+    }
+
+    // Delete the user (cascade will handle related records)
+    await userRepository.delete(userId);
   }
 }
 

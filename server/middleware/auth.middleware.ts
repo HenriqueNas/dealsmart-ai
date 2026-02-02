@@ -16,6 +16,27 @@ export interface AuthSession {
 }
 
 /**
+ * Role hierarchy for permission escalation
+ * Higher numbers have more permissions
+ */
+const ROLE_HIERARCHY: Record<UserRole, number> = {
+  USER: 1,
+  CREATOR: 2,
+  ADMIN: 3,
+};
+
+/**
+ * Check if a user role has at least the required role level
+ * Using role hierarchy (ADMIN > CREATOR > USER)
+ */
+export function hasRoleAtLeast(
+  userRole: UserRole,
+  requiredRole: UserRole
+): boolean {
+  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole];
+}
+
+/**
  * Require authentication
  * Throws UnauthorizedError if not authenticated
  */
@@ -72,4 +93,68 @@ export async function requireAgeVerification(): Promise<AuthSession> {
 export async function getOptionalSession(): Promise<AuthSession | null> {
   const session = await auth();
   return session as AuthSession | null;
+}
+
+/**
+ * Options for requireOwnership middleware
+ */
+export interface RequireOwnershipOptions {
+  /** Allow admin users to bypass ownership check (default: true) */
+  allowAdmin?: boolean;
+}
+
+/**
+ * Require ownership of a resource
+ * Verifies that the authenticated user owns the resource
+ *
+ * @param resourceUserId - The user ID of the resource owner
+ * @param options - Configuration options
+ * @returns The authenticated session
+ * @throws ForbiddenError if user doesn't own the resource
+ *
+ * @example
+ * // In a route handler:
+ * const post = await postRepository.findById(postId);
+ * const session = await requireOwnership(post.userId);
+ */
+export async function requireOwnership(
+  resourceUserId: string,
+  options: RequireOwnershipOptions = {}
+): Promise<AuthSession> {
+  const { allowAdmin = true } = options;
+  const session = await requireAuth();
+
+  // Admin bypass if allowed
+  if (allowAdmin && session.user.role === 'ADMIN') {
+    return session;
+  }
+
+  // Check ownership
+  if (session.user.id !== resourceUserId) {
+    throw new ForbiddenError('You do not have permission to access this resource');
+  }
+
+  return session;
+}
+
+/**
+ * Require role with hierarchy support
+ * Allows higher roles to access lower role resources
+ *
+ * @example
+ * // ADMIN can access CREATOR routes
+ * await requireRoleAtLeast('CREATOR');
+ */
+export async function requireRoleAtLeast(
+  minimumRole: UserRole
+): Promise<AuthSession> {
+  const session = await requireAuth();
+
+  if (!hasRoleAtLeast(session.user.role, minimumRole)) {
+    throw new ForbiddenError(
+      `This action requires at least ${minimumRole} role`
+    );
+  }
+
+  return session;
 }
