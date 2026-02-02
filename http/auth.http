@@ -1,5 +1,31 @@
+### =====================================================
+### Authentication API Tests
+### =====================================================
+### Base URL: http://localhost:3000/api/v1
+###
+### Response Format (Login & Register):
+### {
+###   "success": true,
+###   "data": {
+###     "message": "Login/Registration successful",
+###     "user": { id, email, name, role, ... },
+###     "accessToken": "eyJhbG...",
+###     "refreshToken": "eyJhbG...",
+###     "expiresIn": 900
+###   }
+### }
+### =====================================================
+
+@baseUrl = http://localhost:3000/api/v1
+
+### -----------------------------------------------------
 ### LOGIN
-POST http://localhost:3000/api/v1/auth/login
+### POST /api/v1/auth/login
+### Returns user data with JWT tokens for API authentication
+### -----------------------------------------------------
+
+### Login with test user credentials
+POST {{baseUrl}}/auth/login
 content-type: application/json
 
 {
@@ -7,13 +33,140 @@ content-type: application/json
   "password": "Pass@123"
 }
 
+### Login with seeded admin user
+POST {{baseUrl}}/auth/login
+content-type: application/json
 
-### REGISTER
-POST http://localhost:3000/api/v1/auth/register
+{
+  "email": "admin@dealsmart.ai",
+  "password": "Admin@123"
+}
+
+### Login with seeded creator user
+POST {{baseUrl}}/auth/login
+content-type: application/json
+
+{
+  "email": "creator@example.com",
+  "password": "Creator@123"
+}
+
+### Login - Invalid credentials (should return 401)
+POST {{baseUrl}}/auth/login
 content-type: application/json
 
 {
   "email": "test@example.com",
-  "password": "Pass@123",
-  "name": "John Doe"
+  "password": "WrongPassword"
 }
+
+### Login - Validation error (should return 400)
+POST {{baseUrl}}/auth/login
+content-type: application/json
+
+{
+  "email": "invalid-email",
+  "password": "123"
+}
+
+
+### -----------------------------------------------------
+### REGISTER
+### POST /api/v1/auth/register
+### Creates new user and returns JWT tokens for immediate API access
+### -----------------------------------------------------
+
+### Register new user
+POST {{baseUrl}}/auth/register
+content-type: application/json
+
+{
+  "email": "newuser@example.com",
+  "password": "Pass@123",
+  "name": "New User"
+}
+
+### Register - Email already exists (should return 409)
+POST {{baseUrl}}/auth/register
+content-type: application/json
+
+{
+  "email": "admin@dealsmart.ai",
+  "password": "Pass@123",
+  "name": "Duplicate User"
+}
+
+### Register - Validation error (should return 400)
+POST {{baseUrl}}/auth/register
+content-type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "weak",
+  "name": ""
+}
+
+
+### -----------------------------------------------------
+### CURRENT USER
+### GET /api/v1/users/me
+### Requires authentication (NextAuth session or Bearer token)
+### -----------------------------------------------------
+
+### Get current user profile (requires auth)
+GET {{baseUrl}}/users/me
+
+
+### -----------------------------------------------------
+### UPDATE CURRENT USER
+### PATCH /api/v1/users/me
+### Requires authentication
+### -----------------------------------------------------
+
+### Update current user name
+PATCH {{baseUrl}}/users/me
+content-type: application/json
+
+{
+  "name": "Updated Name"
+}
+
+
+### -----------------------------------------------------
+### DELETE ACCOUNT (Self-Deletion)
+### DELETE /api/v1/users/me
+### Requires authentication and password confirmation
+### This action is IRREVERSIBLE
+### -----------------------------------------------------
+
+### Delete own account (requires password confirmation)
+DELETE {{baseUrl}}/users/me
+content-type: application/json
+
+{
+  "password": "Pass@123"
+}
+
+### Delete account - Wrong password (should return 401)
+DELETE {{baseUrl}}/users/me
+content-type: application/json
+
+{
+  "password": "WrongPassword"
+}
+
+### Delete account - Missing password (should return 400)
+DELETE {{baseUrl}}/users/me
+content-type: application/json
+
+{}
+
+
+### -----------------------------------------------------
+### HEALTH CHECK
+### GET /api/v1/health
+### No authentication required
+### -----------------------------------------------------
+
+### Check API health and database connectivity
+GET {{baseUrl}}/health
