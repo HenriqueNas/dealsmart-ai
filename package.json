@@ -8,8 +8,8 @@
   "scripts": {
     "build": "pnpm migration:generate && next build",
     "dev": "pnpm services:up && ./infra/wait-for.sh localhost 5432 && pnpm migration:generate && pnpm migration:up && next dev",
-    "lint:check": "exec eslint --fix-dry-run .",
-    "lint:fix": "exec eslint --fix .",
+    "lint:check": "eslint --fix-dry-run .",
+    "lint:fix": "eslint --fix .",
     "test": "pnpm jest --runInBand",
     "test:watch": "pnpm jest --watch --runInBand",
     "services:up": "docker-compose -f infra/compose.yaml up -d",
@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
+    "@hubspot/api-client": "^13.4.0",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "bcryptjs": "^3.0.3",
