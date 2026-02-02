@@ -6,6 +6,7 @@ import type {
 } from '@/lib/schemas/user.schema';
 import type { SafeUser } from '@/lib/types';
 import { verifyPassword } from '@/lib/utils/password';
+import { hubspotService } from '@/server/integrations/hubspot';
 import { userRepository } from '@/server/repositories/user.repository';
 import {
   ForbiddenError,
@@ -55,6 +56,12 @@ class UserService {
     }
 
     const updatedUser = await userRepository.update(userId, input);
+
+    // Sync changes to HubSpot (async, don't block response)
+    hubspotService.onUserUpdated(userId, { name: input.name }).catch((err) => {
+      console.error('[UserService] Failed to sync user update to HubSpot:', err);
+    });
+
     return toSafeUser(updatedUser);
   }
 
@@ -103,6 +110,19 @@ class UserService {
     }
 
     const user = await userRepository.update(id, input);
+
+    // Sync changes to HubSpot (async, don't block response)
+    hubspotService
+      .onUserUpdated(id, {
+        name: input.name,
+        role: input.role,
+        verified: input.verified,
+        ageVerified: input.ageVerified,
+      })
+      .catch((err) => {
+        console.error('[UserService] Failed to sync admin update to HubSpot:', err);
+      });
+
     return toSafeUser(user);
   }
 
@@ -130,6 +150,11 @@ class UserService {
       throw new NotFoundError('User', id);
     }
 
+    // Delete from HubSpot first (async, don't block)
+    hubspotService.onUserDeleted(id).catch((err) => {
+      console.error('[UserService] Failed to delete user from HubSpot:', err);
+    });
+
     await userRepository.delete(id);
   }
 
@@ -154,6 +179,11 @@ class UserService {
     if (!isValid) {
       throw new UnauthorizedError('Invalid password');
     }
+
+    // Delete from HubSpot first (async, don't block)
+    hubspotService.onUserDeleted(userId).catch((err) => {
+      console.error('[UserService] Failed to delete user from HubSpot:', err);
+    });
 
     // Delete the user (cascade will handle related records)
     await userRepository.delete(userId);
