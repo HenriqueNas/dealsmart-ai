@@ -24,10 +24,13 @@
     "seed": "tsx infra/prisma/seed.ts"
   },
   "dependencies": {
+    "@ai-sdk/react": "^3.0.69",
+    "@anthropic-ai/sdk": "^0.72.1",
     "@auth/prisma-adapter": "^2.11.1",
     "@hubspot/api-client": "^13.4.0",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
+    "ai": "^6.0.67",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -37,6 +40,7 @@
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
     "next-auth": "^4.24.13",
+    "openai": "^6.17.0",
     "pg": "^8.17.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
