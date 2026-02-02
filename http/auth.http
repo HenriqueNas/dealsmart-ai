@@ -1,0 +1,19 @@
+### LOGIN
+POST http://localhost:3000/api/v1/auth/login
+content-type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Pass@123"
+}
+
+
+### REGISTER
+POST http://localhost:3000/api/v1/auth/register
+content-type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Pass@123",
+  "name": "John Doe"
+}
