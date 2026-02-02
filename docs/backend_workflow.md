@@ -107,6 +107,7 @@ The backend follows a **strict layered architecture** to ensure separation of co
 **Purpose**: Handle HTTP requests and responses
 
 **Allowed**:
+
 - Parse request parameters, query strings, body
 - Apply middleware (auth, validation, rate-limiting)
 - Call service layer methods
@@ -114,6 +115,7 @@ The backend follows a **strict layered architecture** to ensure separation of co
 - Handle HTTP-specific errors (400, 401, 403, 404, etc.)
 
 **Not Allowed**:
+
 - Business logic
 - Direct database access
 - Data transformations
@@ -156,16 +158,19 @@ export async function GET(request: NextRequest) {
 **Types of Middleware**:
 
 1. **Authentication** (`auth.middleware.ts`)
+
    - Validate JWT tokens
    - Extract user claims
    - Verify session validity
 
 2. **Authorization** (part of `auth.middleware.ts`)
+
    - Check user roles
    - Enforce permissions
    - Resource ownership validation
 
 3. **Validation** (`validation.middleware.ts`)
+
    - Zod schema validation
    - Input sanitization
    - Type coercion
@@ -184,7 +189,7 @@ import { verifyJWT } from '@/lib/utils/jwt';
 
 export async function authMiddleware(request: NextRequest) {
   const token = request.headers.get('authorization')?.replace('Bearer ', '');
-  
+
   if (!token) {
     return null;
   }
@@ -215,6 +220,7 @@ export function requireRole(role: string) {
 **Purpose**: Implement business logic and orchestrate operations
 
 **Responsibilities**:
+
 - Encapsulate business rules
 - Coordinate multiple repositories
 - Define transaction boundaries
@@ -264,7 +270,7 @@ class ContentService {
 
   async createContent(userId: string, data: CreateContentDto) {
     // Orchestrate multiple operations in a transaction
-    return await contentRepository.transaction(async (tx) => {
+    return await contentRepository.transaction(async tx => {
       // Create content
       const content = await tx.content.create({ data });
 
@@ -274,7 +280,7 @@ class ContentService {
       // Update user stats
       await tx.user.update({
         where: { id: userId },
-        data: { contentCount: { increment: 1 } }
+        data: { contentCount: { increment: 1 } },
       });
 
       return content;
@@ -292,6 +298,7 @@ export const contentService = new ContentService();
 **Purpose**: Abstract database access and queries
 
 **Responsibilities**:
+
 - Execute database queries
 - Build complex queries
 - Handle Prisma operations
@@ -299,6 +306,7 @@ export const contentService = new ContentService();
 - Define reusable query methods
 
 **Not Allowed**:
+
 - Business logic
 - Calling other services
 - Making HTTP requests
@@ -349,6 +357,7 @@ export const contentRepository = new ContentRepository();
 **Purpose**: Interact with external services and APIs
 
 **Requirements**:
+
 - **Timeouts**: All requests must have timeouts (5-30s)
 - **Retries**: Implement exponential backoff for transient failures
 - **Fallbacks**: Graceful degradation when service is unavailable
@@ -368,23 +377,26 @@ class HubSpotIntegration {
 
   async syncContact(contact: Contact) {
     try {
-      return await retryWithBackoff(async () => {
-        const response = await fetch(`${this.baseUrl}/contacts/v1/contact`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(contact),
-          signal: AbortSignal.timeout(10000), // 10s timeout
-        });
+      return await retryWithBackoff(
+        async () => {
+          const response = await fetch(`${this.baseUrl}/contacts/v1/contact`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${this.apiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(contact),
+            signal: AbortSignal.timeout(10000), // 10s timeout
+          });
 
-        if (!response.ok) {
-          throw new Error(`HubSpot API error: ${response.status}`);
-        }
+          if (!response.ok) {
+            throw new Error(`HubSpot API error: ${response.status}`);
+          }
 
-        return await response.json();
-      }, { maxRetries: 3, initialDelay: 1000 });
+          return await response.json();
+        },
+        { maxRetries: 3, initialDelay: 1000 }
+      );
     } catch (error) {
       logger.error('HubSpot sync failed', { error, contact });
       // Graceful fallback: Don't fail the entire operation
@@ -500,7 +512,7 @@ async syncToHubSpot(contact: Contact) {
 import { z } from 'zod';
 
 const CreateUserSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   password: z.string().min(8),
   role: z.enum(['user', 'creator', 'admin']),
 });
@@ -517,11 +529,13 @@ export async function POST(request: NextRequest) {
 ## Testing Strategy
 
 ### Unit Tests
+
 - Test services in isolation
 - Mock repositories and integrations
 - Focus on business logic
 
 ### Integration Tests
+
 - Test API routes end-to-end
 - Use real database (test environment)
 - Verify middleware chains
@@ -533,11 +547,11 @@ export async function POST(request: NextRequest) {
 describe('POST /api/v1/content', () => {
   it('should create content for authenticated creator', async () => {
     const token = await generateTestToken({ role: 'creator' });
-    
+
     const response = await fetch('http://localhost:3000/api/v1/content', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -560,20 +574,24 @@ describe('POST /api/v1/content', () => {
 ### Error Types
 
 1. **Validation Errors** (400)
+
    - Invalid input
    - Missing required fields
    - Type mismatches
 
 2. **Authentication Errors** (401)
+
    - Missing token
    - Invalid token
    - Expired session
 
 3. **Authorization Errors** (403)
+
    - Insufficient permissions
    - Resource ownership violation
 
 4. **Not Found Errors** (404)
+
    - Resource doesn't exist
 
 5. **Server Errors** (500)
@@ -598,11 +616,13 @@ describe('POST /api/v1/content', () => {
 ## Performance Considerations
 
 1. **Database Queries**
+
    - Use indexes for frequently queried fields
    - Implement pagination for large datasets
    - Use `select` to fetch only needed fields
 
 2. **Caching**
+
    - Cache expensive computations
    - Use Redis for session storage
    - Implement API response caching
