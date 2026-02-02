@@ -1,14 +1,18 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter, Fira_Code } from 'next/font/google';
 import './globals.css';
+import { Providers } from './providers';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const interSans = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
+  weight: ['400', '700'],
+  display: 'swap',
+  fallback: ['-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const firaCode = Fira_Code({
+  variable: '--font-fira-code',
   subsets: ['latin'],
 });
 
@@ -40,9 +44,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${interSans.variable} ${firaCode.variable} antialiased`}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
