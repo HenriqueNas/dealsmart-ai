@@ -3,9 +3,9 @@ import { prisma } from '@/infra/prisma/prisma';
 import { loginSchema } from '@/lib/schemas/auth.schema';
 import { authService } from '@/server/services/auth.service';
 import { PrismaAdapter } from '@auth/prisma-adapter';
-
-import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
+import type { NextAuthOptions } from 'next-auth';
+import { getServerSession } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import HubspotProvider from 'next-auth/providers/hubspot';
 
 declare module 'next-auth' {
@@ -37,21 +37,10 @@ declare module 'next-auth/jwt' {
   }
 }
 
-const providers = [];
-
-// Add HubSpot OAuth provider if configured
-if (process.env.HUBSPOT_CLIENT_ID && process.env.HUBSPOT_CLIENT_SECRET) {
-  providers.push(
-    HubspotProvider({
-      clientId: process.env.HUBSPOT_CLIENT_ID,
-      clientSecret: process.env.HUBSPOT_CLIENT_SECRET,
-    })
-  );
-}
-
-// Always add Credentials provider
-providers.push(
-  Credentials({
+// Build providers array
+const providers: NextAuthOptions['providers'] = [
+  // Credentials provider (always enabled)
+  CredentialsProvider({
     name: 'credentials',
     credentials: {
       email: { label: 'Email', type: 'email' },
@@ -77,10 +66,20 @@ providers.push(
         return null;
       }
     },
-  })
-);
+  }),
+];
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+// Add HubSpot OAuth if configured
+if (process.env.HUBSPOT_CLIENT_ID && process.env.HUBSPOT_CLIENT_SECRET) {
+  providers.push(
+    HubspotProvider({
+      clientId: process.env.HUBSPOT_CLIENT_ID,
+      clientSecret: process.env.HUBSPOT_CLIENT_SECRET,
+    })
+  );
+}
+
+export const authOptions: NextAuthOptions = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapter: PrismaAdapter(prisma) as any,
   providers,
@@ -122,4 +121,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
   },
-});
+};
+
+/**
+ * Get the current session (server-side)
+ * Use this in Server Components, API Routes, or Server Actions
+ */
+export async function auth() {
+  return getServerSession(authOptions);
+}
