@@ -26,3 +26,12 @@ export const adminUpdateUserSchema = updateUserSchema.extend({
 });
 
 export type AdminUpdateUserInput = z.infer<typeof adminUpdateUserSchema>;
+
+/**
+ * Delete own account schema (requires password confirmation)
+ */
+export const deleteAccountSchema = z.object({
+  password: z.string().min(1, 'Password is required for account deletion'),
+});
+
+export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>;
