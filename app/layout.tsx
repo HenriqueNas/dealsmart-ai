@@ -42,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html suppressHydrationWarning={true} data-lt-installed="true" lang="en">
       <body
         className={`${interSans.variable} ${firaCode.variable} antialiased`}
       >
