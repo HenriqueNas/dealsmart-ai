@@ -26,7 +26,7 @@ function calculateStrength(password: string): {
     { label: 'Weak', color: 'bg-orange-500' },
     { label: 'Fair', color: 'bg-yellow-500' },
     { label: 'Good', color: 'bg-lime-500' },
-    { label: 'Strong', color: 'bg-[#0aff64]' },
+    { label: 'Strong', color: 'bg-accent' },
   ];
 
   return {
@@ -47,7 +47,7 @@ export function PasswordStrengthIndicator({
     <div className="flex flex-col gap-1.5">
       {/* Strength bars */}
       <div className="flex gap-1">
-        {[0, 1, 2, 3].map((index) => (
+        {[0, 1, 2, 3].map(index => (
           <div
             key={index}
             className={`h-1 flex-1 rounded-full transition-colors ${
@@ -64,16 +64,16 @@ export function PasswordStrengthIndicator({
 
       {/* Requirements */}
       <div className="mt-1 space-y-0.5 text-xs text-foreground/50">
-        <p className={password.length >= 8 ? 'text-[#0aff64]' : ''}>
+        <p className={password.length >= 8 ? 'text-accent' : ''}>
           {password.length >= 8 ? '✓' : '○'} At least 8 characters
         </p>
-        <p className={/[A-Z]/.test(password) ? 'text-[#0aff64]' : ''}>
+        <p className={/[A-Z]/.test(password) ? 'text-accent' : ''}>
           {/[A-Z]/.test(password) ? '✓' : '○'} One uppercase letter
         </p>
-        <p className={/[a-z]/.test(password) ? 'text-[#0aff64]' : ''}>
+        <p className={/[a-z]/.test(password) ? 'text-accent' : ''}>
           {/[a-z]/.test(password) ? '✓' : '○'} One lowercase letter
         </p>
-        <p className={/[0-9]/.test(password) ? 'text-[#0aff64]' : ''}>
+        <p className={/[0-9]/.test(password) ? 'text-accent' : ''}>
           {/[0-9]/.test(password) ? '✓' : '○'} One number
         </p>
       </div>

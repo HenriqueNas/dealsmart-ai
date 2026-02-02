@@ -6,7 +6,13 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '../ui/Button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/Card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/Card';
 import { Input } from '../ui/Input';
 
 interface FormErrors {
@@ -63,7 +69,7 @@ export function LoginForm() {
       <CardContent>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {errors.general && (
-            <div className="rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-400">
+            <div className="rounded-none bg-red-500/10 px-4 py-3 text-sm text-red-400">
               {errors.general}
             </div>
           )}
@@ -73,7 +79,7 @@ export function LoginForm() {
             label="Email"
             placeholder="you@example.com"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             error={errors.email}
             disabled={isLoading}
             autoComplete="email"
@@ -84,7 +90,7 @@ export function LoginForm() {
             label="Password"
             placeholder="Enter your password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             error={errors.password}
             disabled={isLoading}
             autoComplete="current-password"
@@ -98,7 +104,7 @@ export function LoginForm() {
             Don&apos;t have an account?{' '}
             <Link
               href="/register"
-              className="font-medium text-[#0aff64] hover:underline"
+              className="font-medium text-accent hover:underline"
             >
               Register
             </Link>

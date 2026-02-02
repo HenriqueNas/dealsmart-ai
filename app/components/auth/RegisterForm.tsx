@@ -41,9 +41,9 @@ export function RegisterForm() {
     const result = registerSchema.safeParse({ name, email, password });
     if (!result.success) {
       const fieldErrors: FormErrors = {};
-      for (const error of result.error.errors) {
-        const field = error.path[0] as keyof FormErrors;
-        fieldErrors[field] = error.message;
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as keyof FormErrors;
+        fieldErrors[field] = issue.message;
       }
       setErrors(fieldErrors);
       return;
@@ -67,14 +67,12 @@ export function RegisterForm() {
     <Card>
       <CardHeader>
         <CardTitle>Create an account</CardTitle>
-        <CardDescription>
-          Get started with DealSmart AI today
-        </CardDescription>
+        <CardDescription>Get started with DealSmart AI today</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {errors.general && (
-            <div className="rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-400">
+            <div className="rounded-none bg-red-500/10 px-4 py-3 text-sm text-red-400">
               {errors.general}
             </div>
           )}
@@ -84,7 +82,7 @@ export function RegisterForm() {
             label="Name"
             placeholder="Your name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
             error={errors.name}
             disabled={isLoading}
             autoComplete="name"
@@ -95,7 +93,7 @@ export function RegisterForm() {
             label="Email"
             placeholder="you@example.com"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             error={errors.email}
             disabled={isLoading}
             autoComplete="email"
@@ -107,7 +105,7 @@ export function RegisterForm() {
               label="Password"
               placeholder="Create a strong password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               error={errors.password}
               disabled={isLoading}
               autoComplete="new-password"
@@ -123,7 +121,7 @@ export function RegisterForm() {
             Already have an account?{' '}
             <Link
               href="/login"
-              className="font-medium text-[#0aff64] hover:underline"
+              className="font-medium text-accent hover:underline"
             >
               Sign in
             </Link>
