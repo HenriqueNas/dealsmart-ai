@@ -4,7 +4,9 @@ import { CreatorUpgradeSection } from '@/app/components/profile/CreatorUpgradeSe
 import { EditProfileForm } from '@/app/components/profile/EditProfileForm';
 import { InviteCreator } from '@/app/components/profile/InviteCreator';
 import { ProfileCard } from '@/app/components/profile/ProfileCard';
+import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/hooks/useAuth';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -35,10 +37,16 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="mb-8 pt-20 text-3xl font-bold text-foreground">
-        Your Profile
-      </h1>
+    <div className="pt-30 mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex justify-between">
+        <h1 className="mb-8 text-3xl font-bold text-foreground">
+          Your Profile
+        </h1>
+
+        <Link href="/chat">
+          <Button size="lg"> Start Dealing</Button>
+        </Link>
+      </div>
 
       <div className="space-y-6">
         <ProfileCard />
