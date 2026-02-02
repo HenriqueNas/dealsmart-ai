@@ -31,6 +31,10 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
+  // Invite relations
+  createdInvites InviteCode[] @relation("CreatedInvites")
+  redeemedInvite InviteCode?  @relation("RedeemedInvites")
+
   @@index([email])
   @@index([role])
   @@map("users")
@@ -76,6 +80,28 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+// ============================================================================
+// INVITE SYSTEM
+// ============================================================================
+
+model InviteCode {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  targetRole  Role      @default(CREATOR)
+  createdBy   String
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+  usedBy      String?   @unique
+  usedAt      DateTime?
+
+  creator     User      @relation("CreatedInvites", fields: [createdBy], references: [id])
+  redeemer    User?     @relation("RedeemedInvites", fields: [usedBy], references: [id])
+
+  @@index([code])
+  @@index([createdBy])
+  @@map("invite_codes")
 }
 
 enum Role {
