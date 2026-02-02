@@ -5,7 +5,6 @@ import { Button } from '../ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { Copy, CopyCheck } from 'lucide-react';
 import { useState } from 'react';
-import { inviteCodeSchema } from '@/lib/schemas/invite.schema';
 
 export function InviteCreator() {
   const { user, isLoading } = useAuth();

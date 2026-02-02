@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/Button';
 
 export default function Home() {
-  const { user, isLoading, isAuthenticated, logout } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 h-screen">
