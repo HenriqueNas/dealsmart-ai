@@ -16,7 +16,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const hintId = `${id}-hint`;
 
     return (
-      <div className="flex flex-col gap-1.5">
+      <div className={`flex flex-col gap-1.5 ${className}`}>
         {label && (
           <label
             htmlFor={id}
