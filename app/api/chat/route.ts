@@ -1,4 +1,5 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
 import { convertToModelMessages, streamText, UIMessage } from 'ai';
 import { NextRequest, NextResponse } from 'next/server';
@@ -28,6 +29,9 @@ export async function POST(req: NextRequest) {
     } else if (provider === 'openai') {
       const openai = createOpenAI({ apiKey });
       model = openai('gpt-4o');
+    } else if (provider === 'google') {
+      const google = createGoogleGenerativeAI({ apiKey });
+      model = google('gemini-2.0-flash');
     } else {
       return NextResponse.json(
         { error: `Unsupported provider: ${provider}` },

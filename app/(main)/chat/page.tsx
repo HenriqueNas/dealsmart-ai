@@ -10,7 +10,7 @@ import { Button } from '@/app/components/ui/Button';
 import { Input } from '@/app/components/ui/Input';
 import { Select } from '@/app/components/ui/Select';
 
-type LLMProvider = 'anthropic' | 'openai';
+type LLMProvider = 'anthropic' | 'openai' | 'google';
 
 export default function ChatPage() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -106,6 +106,7 @@ export default function ChatPage() {
               >
                 <option value="anthropic">Anthropic (Claude)</option>
                 <option value="openai">OpenAI (GPT)</option>
+                <option value="google">Google (Gemini)</option>
               </Select>
             </div>
 
@@ -123,7 +124,11 @@ export default function ChatPage() {
                 value={apiKey}
                 onChange={e => setApiKey(e.target.value)}
                 placeholder={
-                  provider === 'anthropic' ? 'sk-ant-api03-...' : 'sk-proj-...'
+                  provider === 'anthropic'
+                    ? 'sk-ant-api03-...'
+                    : provider === 'google'
+                      ? 'AIzaSy...'
+                      : 'sk-proj-...'
                 }
                 disabled={isLoading}
               />
@@ -148,7 +153,11 @@ export default function ChatPage() {
         <div className="flex items-center gap-3">
           <h1 className="text-lg font-semibold">AI Chat</h1>
           <span className="rounded-full bg-foreground/10 px-2 py-0.5 text-xs text-foreground/70">
-            {provider === 'anthropic' ? 'Claude' : 'GPT'}
+            {provider === 'anthropic'
+              ? 'Claude'
+              : provider === 'google'
+                ? 'Gemini'
+                : 'GPT'}
           </span>
         </div>
       </div>
