@@ -10,12 +10,12 @@ setup:
 	else \
 		echo "ℹ️  .env file already exists"; \
 	fi
-	@if [ ! -f .env.development ]; then \
-		echo "📝 Copying .env.example to .env.development"; \
-		cp .env.example .env.development; \
-		echo "✅ Created .env.development file"; \
+	@if [ ! -f .env.local ]; then \
+		echo "📝 Copying .env.example to .env.local"; \
+		cp .env.example .env.local; \
+		echo "✅ Created .env.local file"; \
 	else \
-		echo "ℹ️  .env.development file already exists"; \
+		echo "ℹ️  .env.local file already exists"; \
 	fi
 	@echo ""
 	@echo "📦 Installing dependencies with pnpm"
@@ -37,6 +37,6 @@ clean:
 	@find . -type f -name "*.lock" -delete 2>/dev/null || true
 	@echo "   - Removing generated files..."
 	@rm -rf */generated/
-	@rm -f .env .env.development
+	@rm -f .env.local
 	@echo ""
 	@npx cowsay -d -n "✅ Cleanup complete!"
