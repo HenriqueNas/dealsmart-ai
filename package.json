@@ -6,7 +6,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "pnpm migration:up && pnpm migration:generate && next build",
+    "postinstall": "pnpm migration:generate && pnpm migration:up",
+    "build": "next build",
     "dev": "pnpm services:up && ./infra/wait-for.sh localhost 5432 && pnpm migration:generate && pnpm migration:up && next dev",
     "lint:check": "eslint --fix-dry-run .",
     "lint:fix": "eslint --fix .",
@@ -15,7 +16,7 @@
     "services:up": "docker-compose -f infra/compose.yaml up -d",
     "services:stop": "docker-compose -f infra/compose.yaml stop",
     "services:down": "docker-compose -f infra/compose.yaml down",
-    "migration:create": "prisma migrate dev --create-only --name",
+    "migration:create": "prisma migrate dev --name",
     "migration:up": "prisma migrate deploy",
     "migration:generate": "prisma generate",
     "db:seed": "npx prisma db seed"
