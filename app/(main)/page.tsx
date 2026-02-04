@@ -61,8 +61,11 @@ export default function Home() {
         </div>
       ) : isAuthenticated && user ? (
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 delay-400 opacity-100 translate-y-0">
+          <Link href="/conversations">
+            <Button size="lg">Communications Hub</Button>
+          </Link>
           <Link href="/chat">
-            <Button size="lg"> Start Dealing</Button>
+            <Button variant="secondary" size="lg">AI Chat</Button>
           </Link>
         </div>
       ) : (

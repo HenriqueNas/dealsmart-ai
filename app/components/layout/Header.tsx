@@ -107,6 +107,13 @@ export function Header({ showNavigation = true }) {
                       {/* Menu items */}
                       <div className="py-1">
                         <Link
+                          href="/conversations"
+                          onClick={() => setIsDropdownOpen(false)}
+                          className="block rounded-none px-3 py-2 text-sm text-foreground hover:bg-foreground/5"
+                        >
+                          Conversations
+                        </Link>
+                        <Link
                           href="/profile"
                           onClick={() => setIsDropdownOpen(false)}
                           className="block rounded-none px-3 py-2 text-sm text-foreground hover:bg-foreground/5"
