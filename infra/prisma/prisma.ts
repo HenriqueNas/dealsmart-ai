@@ -10,41 +10,23 @@
  *   const users = await prisma.user.findMany();
  */
 
-import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from './generated/client';
 
-// Declare global type for prisma in development
-declare global {
-  var prisma: PrismaClient | undefined;
-}
+const globalForPrisma = global as unknown as {
+  prisma: PrismaClient;
+};
 
-/**
- * Create Prisma Client instance with configuration
- */
-function createPrismaClient(): PrismaClient {
-  const pool = new Pool({
-    host: process.env.POSTGRES_HOST,
-    port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
-    user: process.env.POSTGRES_USER,
-    password: process.env.POSTGRES_PASSWORD,
-    database: process.env.POSTGRES_DB,
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+});
+
+const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    adapter,
   });
 
-  const adapter = new PrismaPg(pool);
-  return new PrismaClient({ adapter });
-}
-
-/**
- * Singleton pattern:
- * - In production: Create a new client for each serverless function instance
- * - In development: Reuse the same client to prevent too many connections
- */
-export const prisma: PrismaClient = globalThis.prisma ?? createPrismaClient();
-
-// In development, store the client in global to persist across hot reloads
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.prisma = prisma;
-}
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export default prisma;
