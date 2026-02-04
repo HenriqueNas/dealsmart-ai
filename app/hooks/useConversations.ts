@@ -1,6 +1,6 @@
 'use client';
 
-import { ApiResponse, PaginatedResponse } from '@/lib/types/api.types';
+import { ApiResponse } from '@/lib/types/api.types';
 import { useCallback, useEffect, useState } from 'react';
 
 export type ConversationStatus = 'NEW' | 'IN_PROGRESS' | 'RESOLVED';
@@ -45,15 +45,18 @@ export function useConversations(options: UseConversationsOptions = {}) {
       params.set('pageSize', String(pageSize));
 
       const res = await fetch(`/api/v1/conversations?${params.toString()}`);
-      const data: PaginatedResponse<ConversationListItem> = await res.json();
+      const data: ApiResponse<{
+        conversations: ConversationListItem[];
+        pagination: { page: number; pageSize: number; total: number; totalPages: number };
+      }> = await res.json();
 
       if (!data.success) {
-        throw new Error((data as ApiResponse).error?.message || 'Failed to fetch conversations');
+        throw new Error(data.error?.message || 'Failed to fetch conversations');
       }
 
-      setConversations(data.data || []);
-      if (data.pagination) {
-        setPagination(data.pagination);
+      setConversations(data.data?.conversations || []);
+      if (data.data?.pagination) {
+        setPagination(data.data.pagination);
       }
       setError(null);
     } catch (err) {
