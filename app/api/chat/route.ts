@@ -8,9 +8,16 @@ export const runtime = 'edge';
 
 export async function POST(req: NextRequest) {
   try {
-    // Get provider and API key from headers
-    const apiKey = req.headers.get('x-api-key');
-    const provider = req.headers.get('x-provider') || 'anthropic';
+    const body = await req.json();
+    const {
+      messages,
+      apiKey,
+      provider = 'anthropic',
+    } = body as {
+      messages: UIMessage[];
+      apiKey?: string;
+      provider?: string;
+    };
 
     if (!apiKey) {
       return NextResponse.json(
@@ -18,8 +25,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    const { messages }: { messages: UIMessage[] } = await req.json();
 
     // Create the appropriate model based on provider
     let model;

@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/app/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
@@ -16,43 +16,27 @@ export default function ChatPage() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!isAuthLoading && !isAuthenticated) {
-      router.push('/login?callbackUrl=/chat');
-    }
-  }, [isAuthenticated, isAuthLoading, router]);
-
-  if (isAuthLoading) {
-    return (
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="space-y-6">
-          <div className="h-8 w-48 animate-pulse rounded bg-foreground/10" />
-          <div className="h-48 animate-pulse rounded-none bg-foreground/10" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return null; // Will redirect
-  }
-
   const [apiKey, setApiKey] = useState('');
   const [provider, setProvider] = useState<LLMProvider>('anthropic');
   const [isConfigured, setIsConfigured] = useState(false);
   const [inputValue, setInputValue] = useState('');
 
-  const transport = useMemo(
+  // Use refs so the transport body function always reads the latest values
+  // without needing to recreate the transport instance
+  const apiKeyRef = useRef(apiKey);
+  const providerRef = useRef(provider);
+  apiKeyRef.current = apiKey;
+  providerRef.current = provider;
+
+  const [transport] = useState(
     () =>
       new DefaultChatTransport({
         api: '/api/chat',
-        headers: () => ({
-          'x-api-key': apiKey,
-          'x-provider': provider,
+        body: () => ({
+          apiKey: apiKeyRef.current,
+          provider: providerRef.current,
         }),
-      }),
-    [apiKey, provider]
+      })
   );
 
   const { messages, status, error, sendMessage, stop } = useChat({
@@ -60,6 +44,15 @@ export default function ChatPage() {
   });
 
   const isLoading = status === 'submitted' || status === 'streaming';
+
+  useEffect(
+    function checkAuthentication() {
+      if (!isAuthLoading && !isAuthenticated) {
+        router.push('/login?callbackUrl=/chat');
+      }
+    },
+    [isAuthenticated, isAuthLoading, router]
+  );
 
   const handleConfigure = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +69,26 @@ export default function ChatPage() {
     }
   };
 
+  const handlePasteAPIKey = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Pasted API Key:', e.target.value);
+    setApiKey(e.target.value);
+  };
+
+  if (isAuthLoading) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="space-y-6">
+          <div className="h-8 w-48 animate-pulse rounded bg-foreground/10" />
+          <div className="h-48 animate-pulse rounded-none bg-foreground/10" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   if (!isConfigured) {
     return (
       <div className="flex min-h-[80vh] items-center justify-center px-4">
@@ -90,7 +103,6 @@ export default function ChatPage() {
           </div>
 
           <form onSubmit={handleConfigure} className="space-y-4">
-            {/* Provider Selection */}
             <div className="space-y-2">
               <label
                 htmlFor="provider"
@@ -110,7 +122,6 @@ export default function ChatPage() {
               </Select>
             </div>
 
-            {/* API Key Input */}
             <div className="space-y-2">
               <label
                 htmlFor="apiKey"
@@ -122,15 +133,14 @@ export default function ChatPage() {
                 id="apiKey"
                 type="password"
                 value={apiKey}
-                onChange={e => setApiKey(e.target.value)}
+                onChange={handlePasteAPIKey}
                 placeholder={
                   provider === 'anthropic'
                     ? 'sk-ant-api03-...'
                     : provider === 'google'
-                      ? 'AIzaSy...'
-                      : 'sk-proj-...'
+                    ? 'AIzaSy...'
+                    : 'sk-proj-...'
                 }
-                disabled={isLoading}
               />
               <p className="text-xs text-foreground/50">
                 Your API key is sent directly to the provider and is not stored.
@@ -156,8 +166,8 @@ export default function ChatPage() {
             {provider === 'anthropic'
               ? 'Claude'
               : provider === 'google'
-                ? 'Gemini'
-                : 'GPT'}
+              ? 'Gemini'
+              : 'GPT'}
           </span>
         </div>
       </div>
