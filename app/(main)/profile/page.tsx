@@ -38,15 +38,7 @@ export default function ProfilePage() {
 
   return (
     <div className="pt-30 mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="flex justify-between">
-        <h1 className="mb-8 text-3xl font-bold text-foreground">
-          Your Profile
-        </h1>
-
-        <Link href="/chat">
-          <Button size="lg"> Start Dealing</Button>
-        </Link>
-      </div>
+      <h1 className="mb-8 text-3xl font-bold text-foreground">Your Profile</h1>
 
       <div className="space-y-6">
         <ProfileCard />

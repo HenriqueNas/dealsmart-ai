@@ -52,9 +52,7 @@ export default function ConversationsPage() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
-  const [statusFilter, setStatusFilter] = useState<
-    ConversationStatus | ''
-  >('');
+  const [statusFilter, setStatusFilter] = useState<ConversationStatus | ''>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -105,13 +103,18 @@ export default function ConversationsPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 pt-24 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">
-          Conversations
-        </h1>
-        <p className="mt-1 text-sm text-foreground/60">
-          Manage customer conversations and AI-assisted responses
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-foreground">
+            Conversations
+          </h1>
+          <p className="mt-1 text-sm text-foreground/60">
+            Manage customer conversations and AI-assisted responses
+          </p>
+        </div>
+        <Link href="/chat">
+          <Button size="lg"> AI Chat</Button>
+        </Link>
       </div>
 
       {/* Filters */}
@@ -185,7 +188,7 @@ export default function ConversationsPage() {
             <Link
               key={conv.id}
               href={`/conversations/${conv.id}`}
-              className="block border border-foreground/10 bg-foreground/[0.02] p-4 transition-colors hover:bg-foreground/5"
+              className="block border border-foreground/10 bg-foreground/2 p-4 transition-colors hover:bg-foreground/5"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
@@ -205,8 +208,8 @@ export default function ConversationsPage() {
                         {lastMessage.senderType === 'CUSTOMER'
                           ? conv.customerName.split(' ')[0]
                           : lastMessage.senderType === 'AI'
-                            ? 'Max (AI)'
-                            : 'Agent'}
+                          ? 'Max (AI)'
+                          : 'Agent'}
                         :{' '}
                       </span>
                       {truncate(lastMessage.content, 100)}
@@ -240,8 +243,8 @@ export default function ConversationsPage() {
       {pagination.totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <p className="text-sm text-foreground/50">
-            Page {pagination.page} of {pagination.totalPages} ({pagination.total}{' '}
-            total)
+            Page {pagination.page} of {pagination.totalPages} (
+            {pagination.total} total)
           </p>
           <div className="flex gap-2">
             <Button
