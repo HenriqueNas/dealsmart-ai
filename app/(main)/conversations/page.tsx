@@ -50,8 +50,11 @@ function truncate(str: string, maxLen: number) {
 }
 
 export default function ConversationsPage() {
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth();
   const router = useRouter();
+
+  // Only CREATOR and ADMIN can import contacts from HubSpot
+  const canImportContacts = user?.role === 'CREATOR' || user?.role === 'ADMIN';
 
   const [statusFilter, setStatusFilter] = useState<ConversationStatus | ''>('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -115,19 +118,23 @@ export default function ConversationsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={() => setShowNewDialog(true)}>
-            New Conversation
-          </Button>
+          {canImportContacts && (
+            <Button onClick={() => setShowNewDialog(true)}>
+              New Conversation
+            </Button>
+          )}
           <Link href="/chat">
             <Button variant="secondary">AI Chat</Button>
           </Link>
         </div>
       </div>
 
-      <NewConversationDialog
-        isOpen={showNewDialog}
-        onClose={() => setShowNewDialog(false)}
-      />
+      {canImportContacts && (
+        <NewConversationDialog
+          isOpen={showNewDialog}
+          onClose={() => setShowNewDialog(false)}
+        />
+      )}
 
       {/* Filters */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
