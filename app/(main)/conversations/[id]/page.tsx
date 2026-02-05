@@ -3,6 +3,7 @@
 import { useAuth } from '@/app/hooks/useAuth';
 import { useConversation, SenderType } from '@/app/hooks/useConversation';
 import { AISuggestionPanel } from '@/app/components/conversations/AISuggestionPanel';
+import { HubSpotProfileCard } from '@/app/components/conversations/HubSpotProfileCard';
 import { Badge } from '@/app/components/ui/Badge';
 import { Button } from '@/app/components/ui/Button';
 import { Input } from '@/app/components/ui/Input';
@@ -84,6 +85,7 @@ export default function ConversationDetailPage() {
   const [messageInput, setMessageInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auth guard
@@ -132,9 +134,7 @@ export default function ConversationDetailPage() {
   const handleStatusChange = useCallback(
     async (newStatus: string) => {
       try {
-        await updateStatus(
-          newStatus as 'NEW' | 'IN_PROGRESS' | 'RESOLVED'
-        );
+        await updateStatus(newStatus as 'NEW' | 'IN_PROGRESS' | 'RESOLVED');
       } catch {
         // Silent fail — status will revert on next poll
       }
@@ -163,7 +163,9 @@ export default function ConversationDetailPage() {
           {[1, 2, 3].map(i => (
             <div
               key={i}
-              className={`flex ${i % 2 === 0 ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${
+                i % 2 === 0 ? 'justify-end' : 'justify-start'
+              }`}
             >
               <div className="h-16 w-64 animate-pulse rounded-lg bg-foreground/10" />
             </div>
@@ -191,7 +193,10 @@ export default function ConversationDetailPage() {
   if (!conversation) return null;
 
   // Group messages by date
-  const messagesByDate: { date: string; messages: typeof conversation.messages }[] = [];
+  const messagesByDate: {
+    date: string;
+    messages: typeof conversation.messages;
+  }[] = [];
   let currentDate = '';
   for (const msg of conversation.messages) {
     const dateStr = new Date(msg.createdAt).toDateString();
@@ -247,6 +252,13 @@ export default function ConversationDetailPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Button
+              variant={showProfile ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => setShowProfile(p => !p)}
+            >
+              CRM
+            </Button>
             <Select
               value={conversation.status}
               onChange={e => handleStatusChange(e.target.value)}
@@ -259,89 +271,102 @@ export default function ConversationDetailPage() {
         </div>
       </div>
 
-      {/* Messages area */}
-      <div className="flex min-h-0 flex-1 flex-col">
-        <div className="flex-1 overflow-y-auto px-4 py-6">
-          <div className="mx-auto max-w-3xl space-y-6">
-            {messagesByDate.map((group, gi) => (
-              <div key={gi}>
-                {/* Date separator */}
-                <div className="mb-4 flex items-center gap-4">
-                  <div className="h-px flex-1 bg-foreground/10" />
-                  <span className="text-xs text-foreground/30">
-                    {formatMessageDate(group.date)}
-                  </span>
-                  <div className="h-px flex-1 bg-foreground/10" />
-                </div>
+      {/* Messages area + sidebar */}
+      <div className="flex min-h-0 flex-1">
+        {/* Main content */}
+        <div className="flex min-h-0 flex-1 flex-col">
+          <div className="flex-1 overflow-y-auto px-4 py-6">
+            <div className="mx-auto max-w-3xl space-y-6">
+              {messagesByDate.map((group, gi) => (
+                <div key={gi}>
+                  {/* Date separator */}
+                  <div className="mb-4 flex items-center gap-4">
+                    <div className="h-px flex-1 bg-foreground/10" />
+                    <span className="text-xs text-foreground/30">
+                      {formatMessageDate(group.date)}
+                    </span>
+                    <div className="h-px flex-1 bg-foreground/10" />
+                  </div>
 
-                {/* Messages */}
-                <div className="space-y-3">
-                  {group.messages.map(message => {
-                    const styles = getSenderStyles(message.senderType);
-                    return (
-                      <div key={message.id} className={`flex ${styles.align}`}>
-                        <div className="max-w-[75%]">
-                          <div className={`mb-1 text-xs ${styles.label}`}>
-                            {senderLabel[message.senderType]}
-                            <span className="ml-2 text-foreground/30">
-                              {formatMessageTime(message.createdAt)}
-                            </span>
-                          </div>
-                          <div
-                            className={`rounded-lg px-4 py-2 ${styles.bubble}`}
-                          >
-                            <p className="whitespace-pre-wrap text-sm">
-                              {message.content}
-                            </p>
+                  {/* Messages */}
+                  <div className="space-y-3">
+                    {group.messages.map(message => {
+                      const styles = getSenderStyles(message.senderType);
+                      return (
+                        <div
+                          key={message.id}
+                          className={`flex ${styles.align}`}
+                        >
+                          <div className="max-w-[75%]">
+                            <div className={`mb-1 text-xs ${styles.label}`}>
+                              {senderLabel[message.senderType]}
+                              <span className="ml-2 text-foreground/30">
+                                {formatMessageTime(message.createdAt)}
+                              </span>
+                            </div>
+                            <div
+                              className={`rounded-lg px-4 py-2 ${styles.bubble}`}
+                            >
+                              <p className="whitespace-pre-wrap text-sm">
+                                {message.content}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            <div ref={messagesEndRef} />
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+
+          {/* AI Suggestion Panel */}
+          <div className="mx-auto w-full max-w-3xl px-4">
+            <AISuggestionPanel
+              conversationId={id}
+              onSendMessage={handleSendFromSuggestion}
+              hasMessages={conversation.messages.length > 0}
+            />
+          </div>
+
+          {/* Message input */}
+          <div className="border-t border-foreground/10 px-4 py-3">
+            <form
+              onSubmit={handleSend}
+              className="mx-auto flex max-w-3xl items-center gap-2"
+            >
+              <Input
+                value={messageInput}
+                onChange={e => setMessageInput(e.target.value)}
+                placeholder="Type your response..."
+                disabled={isSending}
+                className="flex-1"
+              />
+              <Button
+                type="submit"
+                disabled={isSending || !messageInput.trim()}
+                isLoading={isSending}
+              >
+                Send
+              </Button>
+            </form>
+            {sendError && (
+              <p className="mx-auto mt-1 max-w-3xl text-xs text-red-400">
+                {sendError}
+              </p>
+            )}
           </div>
         </div>
 
-        {/* AI Suggestion Panel */}
-        <div className="mx-auto w-full max-w-3xl px-4">
-          <AISuggestionPanel
-            conversationId={id}
-            onSendMessage={handleSendFromSuggestion}
-            hasMessages={conversation.messages.length > 0}
-          />
-        </div>
-
-        {/* Message input */}
-        <div className="border-t border-foreground/10 px-4 py-3">
-          <form
-            onSubmit={handleSend}
-            className="mx-auto flex max-w-3xl items-center gap-2"
-          >
-            <Input
-              value={messageInput}
-              onChange={e => setMessageInput(e.target.value)}
-              placeholder="Type your response..."
-              disabled={isSending}
-              className="flex-1"
-            />
-            <Button
-              type="submit"
-              disabled={isSending || !messageInput.trim()}
-              isLoading={isSending}
-            >
-              Send
-            </Button>
-          </form>
-          {sendError && (
-            <p className="mx-auto mt-1 max-w-3xl text-xs text-red-400">
-              {sendError}
-            </p>
-          )}
-        </div>
+        {/* HubSpot Profile Sidebar */}
+        {showProfile && (
+          <div className="w-72 shrink-0 overflow-y-auto border-l border-foreground/10">
+            <HubSpotProfileCard conversationId={id} />
+          </div>
+        )}
       </div>
     </div>
   );

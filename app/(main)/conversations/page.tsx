@@ -5,6 +5,7 @@ import {
   ConversationStatus,
   useConversations,
 } from '@/app/hooks/useConversations';
+import { NewConversationDialog } from '@/app/components/conversations/NewConversationDialog';
 import { Badge } from '@/app/components/ui/Badge';
 import { Button } from '@/app/components/ui/Button';
 import { Input } from '@/app/components/ui/Input';
@@ -56,6 +57,7 @@ export default function ConversationsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [showNewDialog, setShowNewDialog] = useState(false);
 
   // Debounce search input
   useEffect(() => {
@@ -112,10 +114,20 @@ export default function ConversationsPage() {
             Manage customer conversations and AI-assisted responses
           </p>
         </div>
-        <Link href="/chat">
-          <Button size="lg"> AI Chat</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setShowNewDialog(true)}>
+            New Conversation
+          </Button>
+          <Link href="/chat">
+            <Button variant="secondary">AI Chat</Button>
+          </Link>
+        </div>
       </div>
+
+      <NewConversationDialog
+        isOpen={showNewDialog}
+        onClose={() => setShowNewDialog(false)}
+      />
 
       {/* Filters */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">

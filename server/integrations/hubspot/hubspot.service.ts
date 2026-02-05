@@ -6,6 +6,7 @@
 
 import { prisma } from '@/infra/prisma/prisma';
 import type { User } from '@/infra/prisma/generated/client';
+import { hubspotCache, cacheKeys, CACHE_TTL } from './hubspot.cache';
 import { hubspotClient } from './hubspot.client';
 import type {
   CreateContactInput,
@@ -376,6 +377,17 @@ class HubSpotService {
       return null;
     }
 
+    // Check cache first
+    const cacheKey = cacheKeys.contact(hubspotContactId);
+    const cached = hubspotCache.get<{
+      id: string;
+      email?: string;
+      firstname?: string;
+      lastname?: string;
+      phone?: string;
+    }>(cacheKey);
+    if (cached) return cached;
+
     try {
       const contact = await hubspotClient.getContact(hubspotContactId, [
         'email',
@@ -388,13 +400,16 @@ class HubSpotService {
         return null;
       }
 
-      return {
+      const result = {
         id: contact.id,
         email: contact.properties?.email,
         firstname: contact.properties?.firstname,
         lastname: contact.properties?.lastname,
         phone: contact.properties?.phone,
       };
+
+      hubspotCache.set(cacheKey, result, CACHE_TTL.CONTACT);
+      return result;
     } catch (error) {
       console.error('[HubSpot] Error fetching contact by ID:', error);
       return null;
@@ -442,6 +457,21 @@ class HubSpotService {
       return { contacts: [], hasMore: false };
     }
 
+    // Check cache first
+    const cacheKey = cacheKeys.contactList(limit, after);
+    const cached = hubspotCache.get<{
+      contacts: Array<{
+        id: string;
+        email?: string;
+        firstname?: string;
+        lastname?: string;
+        phone?: string;
+      }>;
+      hasMore: boolean;
+      nextAfter?: string;
+    }>(cacheKey);
+    if (cached) return cached;
+
     try {
       const result = await hubspotClient.listContacts(limit, after, [
         'email',
@@ -450,7 +480,7 @@ class HubSpotService {
         'phone',
       ]);
 
-      return {
+      const data = {
         contacts: result.results.map((contact) => ({
           id: contact.id,
           email: contact.properties?.email,
@@ -461,6 +491,9 @@ class HubSpotService {
         hasMore: !!result.paging?.next?.after,
         nextAfter: result.paging?.next?.after,
       };
+
+      hubspotCache.set(cacheKey, data, CACHE_TTL.CONTACT_LIST);
+      return data;
     } catch (error) {
       console.error('[HubSpot] Error listing contacts:', error);
       return { contacts: [], hasMore: false };

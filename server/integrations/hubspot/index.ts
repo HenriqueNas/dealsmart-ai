@@ -4,6 +4,7 @@
  * Exports all HubSpot-related functionality.
  */
 
+export { hubspotCache } from './hubspot.cache';
 export { hubspotClient } from './hubspot.client';
 export { hubspotService } from './hubspot.service';
 export * from './types';
