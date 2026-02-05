@@ -29,6 +29,9 @@ model User {
   llmApiKey        String?   // Encrypted API key for LLM provider
   llmProvider      LLMProvider @default(ANTHROPIC)
 
+  // HubSpot integration (encrypted)
+  hubspotAccessToken String?  // Encrypted HubSpot private app access token
+
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 

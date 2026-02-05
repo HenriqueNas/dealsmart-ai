@@ -16,6 +16,7 @@ export interface UpdateUserData {
   ageVerified?: boolean;
   llmApiKey?: string | null;
   llmProvider?: LLMProvider;
+  hubspotAccessToken?: string | null;
 }
 
 class UserRepository {

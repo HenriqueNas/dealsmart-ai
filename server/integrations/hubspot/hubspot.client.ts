@@ -452,3 +452,133 @@ class HubSpotClient {
 
 // Export singleton instance
 export const hubspotClient = new HubSpotClient();
+
+/**
+ * Create a HubSpot client with a user-provided access token.
+ * This is used when users have stored their own HubSpot token in their profile.
+ */
+export function createHubSpotClientWithToken(accessToken: string): HubSpotClientWithToken {
+  return new HubSpotClientWithToken(accessToken);
+}
+
+/**
+ * HubSpot client variant that uses a user-provided access token
+ */
+class HubSpotClientWithToken {
+  private client: Client;
+  private maxRetries: number = DEFAULT_MAX_RETRIES;
+  private initialDelayMs: number = DEFAULT_INITIAL_DELAY_MS;
+
+  constructor(accessToken: string) {
+    this.client = new Client({ accessToken });
+  }
+
+  isConfigured(): boolean {
+    return true;
+  }
+
+  private async withRetry<T>(
+    operation: () => Promise<T>,
+    context: string
+  ): Promise<T> {
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt < this.maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error as Error;
+        const statusCode = (error as { code?: number })?.code;
+
+        if (statusCode && statusCode >= 400 && statusCode < 500 && statusCode !== 429) {
+          throw error;
+        }
+
+        if (statusCode === 429) {
+          console.warn(`[HubSpot] Rate limited during ${context}. Waiting ${RATE_LIMIT_DELAY_MS}ms...`);
+          await this.delay(RATE_LIMIT_DELAY_MS);
+          continue;
+        }
+
+        if (attempt < this.maxRetries - 1) {
+          const delayMs = this.initialDelayMs * Math.pow(2, attempt);
+          console.warn(
+            `[HubSpot] ${context} failed (attempt ${attempt + 1}/${this.maxRetries}). Retrying in ${delayMs}ms...`,
+            error
+          );
+          await this.delay(delayMs);
+        }
+      }
+    }
+
+    console.error(`[HubSpot] ${context} failed after ${this.maxRetries} attempts`);
+    throw lastError;
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async getContact(
+    contactId: string,
+    properties?: string[]
+  ): Promise<HubSpotContact | null> {
+    try {
+      return await this.withRetry(async () => {
+        const response = await this.client.crm.contacts.basicApi.getById(
+          contactId,
+          properties
+        );
+        return response as unknown as HubSpotContact;
+      }, `getContact(${contactId})`);
+    } catch (error) {
+      const statusCode = (error as { code?: number })?.code;
+      if (statusCode === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async listContacts(
+    limit = 100,
+    after?: string,
+    properties?: string[]
+  ): Promise<HubSpotPaginatedResults<HubSpotContact>> {
+    return this.withRetry(async () => {
+      const response = await this.client.crm.contacts.basicApi.getPage(
+        limit,
+        after,
+        properties
+      );
+      return response as unknown as HubSpotPaginatedResults<HubSpotContact>;
+    }, 'listContacts');
+  }
+
+  async createNote(
+    contactId: string,
+    body: string
+  ): Promise<{ id: string }> {
+    return this.withRetry(async () => {
+      const response = await this.client.crm.objects.notes.basicApi.create({
+        properties: {
+          hs_note_body: body,
+          hs_timestamp: new Date().toISOString(),
+        },
+        associations: [
+          {
+            to: { id: contactId },
+            types: [
+              {
+                associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
+                associationTypeId: 202,
+              },
+            ],
+          },
+        ],
+      });
+
+      return { id: response.id };
+    }, `createNote(contact: ${contactId})`);
+  }
+}

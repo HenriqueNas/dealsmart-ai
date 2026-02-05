@@ -5,6 +5,6 @@
  */
 
 export { hubspotCache } from './hubspot.cache';
-export { hubspotClient } from './hubspot.client';
+export { hubspotClient, createHubSpotClientWithToken } from './hubspot.client';
 export { hubspotService } from './hubspot.service';
 export * from './types';

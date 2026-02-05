@@ -3,6 +3,7 @@
 import { ApiKeySettings } from '@/app/components/profile/ApiKeySettings';
 import { CreatorUpgradeSection } from '@/app/components/profile/CreatorUpgradeSection';
 import { EditProfileForm } from '@/app/components/profile/EditProfileForm';
+import { HubSpotTokenSettings } from '@/app/components/profile/HubSpotTokenSettings';
 import { InviteCreator } from '@/app/components/profile/InviteCreator';
 import { ProfileCard } from '@/app/components/profile/ProfileCard';
 import { useAuth } from '@/app/hooks/useAuth';
@@ -43,6 +44,7 @@ export default function ProfilePage() {
         <ProfileCard />
         <EditProfileForm />
         <ApiKeySettings />
+        <HubSpotTokenSettings />
         <CreatorUpgradeSection />
         <InviteCreator />
       </div>
