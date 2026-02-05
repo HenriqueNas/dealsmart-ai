@@ -4,7 +4,7 @@
  * Provides AI-powered response suggestions using Claude or OpenAI.
  */
 
-export { llmService } from './llm.service';
+export { llmService, createLlmServiceWithKey } from './llm.service';
 export { anthropicProvider } from './anthropic.provider';
 export { openaiProvider } from './openai.provider';
 export type {

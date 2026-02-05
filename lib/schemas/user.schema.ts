@@ -7,6 +7,12 @@ export const userRoleSchema = z.enum(['USER', 'CREATOR', 'ADMIN']);
 export type UserRole = z.infer<typeof userRoleSchema>;
 
 /**
+ * LLM provider enum matching Prisma schema
+ */
+export const llmProviderSchema = z.enum(['ANTHROPIC', 'OPENAI', 'GOOGLE']);
+export type LLMProvider = z.infer<typeof llmProviderSchema>;
+
+/**
  * Update current user schema (self-service)
  */
 export const updateUserSchema = z.object({
@@ -35,3 +41,13 @@ export const deleteAccountSchema = z.object({
 });
 
 export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>;
+
+/**
+ * Update LLM API key schema
+ */
+export const updateApiKeySchema = z.object({
+  apiKey: z.string().min(1, 'API key is required').optional().nullable(),
+  provider: llmProviderSchema.optional(),
+});
+
+export type UpdateApiKeyInput = z.infer<typeof updateApiKeySchema>;

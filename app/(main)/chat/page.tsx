@@ -2,31 +2,57 @@
 
 import { useAuth } from '@/app/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { Button } from '@/app/components/ui/Button';
 import { Input } from '@/app/components/ui/Input';
 import { Select } from '@/app/components/ui/Select';
+import { ApiResponse } from '@/lib/types/api.types';
 
 type LLMProvider = 'anthropic' | 'openai' | 'google';
+
+interface StoredApiKeyConfig {
+  hasApiKey: boolean;
+  apiKey: string | null;
+  provider: 'ANTHROPIC' | 'OPENAI' | 'GOOGLE';
+}
 
 export default function ChatPage() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
-  const [apiKey, setApiKey] = useState('');
-  const [provider, setProvider] = useState<LLMProvider>('anthropic');
+  // Stored API key from profile
+  const [storedConfig, setStoredConfig] = useState<StoredApiKeyConfig | null>(
+    null
+  );
+  const [isLoadingConfig, setIsLoadingConfig] = useState(true);
+
+  // Manual API key entry (fallback)
+  const [manualApiKey, setManualApiKey] = useState('');
+  const [manualProvider, setManualProvider] =
+    useState<LLMProvider>('anthropic');
+  const [useManualKey, setUseManualKey] = useState(false);
+
+  // Chat state
   const [isConfigured, setIsConfigured] = useState(false);
   const [inputValue, setInputValue] = useState('');
 
+  // Determine effective API key and provider
+  const effectiveApiKey = useManualKey
+    ? manualApiKey
+    : storedConfig?.apiKey || '';
+  const effectiveProvider: LLMProvider = useManualKey
+    ? manualProvider
+    : (storedConfig?.provider?.toLowerCase() as LLMProvider) || 'anthropic';
+
   // Use refs so the transport body function always reads the latest values
-  // without needing to recreate the transport instance
-  const apiKeyRef = useRef(apiKey);
-  const providerRef = useRef(provider);
-  apiKeyRef.current = apiKey;
-  providerRef.current = provider;
+  const apiKeyRef = useRef(effectiveApiKey);
+  const providerRef = useRef(effectiveProvider);
+  apiKeyRef.current = effectiveApiKey;
+  providerRef.current = effectiveProvider;
 
   const [transport] = useState(
     () =>
@@ -45,6 +71,32 @@ export default function ChatPage() {
 
   const isLoading = status === 'submitted' || status === 'streaming';
 
+  // Fetch stored API key config
+  const fetchStoredConfig = useCallback(async () => {
+    try {
+      const res = await fetch('/api/v1/users/me/api-key/decrypt');
+      const data: ApiResponse<StoredApiKeyConfig> = await res.json();
+
+      if (data.success && data.data) {
+        setStoredConfig(data.data);
+        // Auto-configure if we have a stored key
+        if (data.data.hasApiKey && data.data.apiKey) {
+          setIsConfigured(true);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch stored API key:', err);
+    } finally {
+      setIsLoadingConfig(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchStoredConfig();
+    }
+  }, [isAuthenticated, fetchStoredConfig]);
+
   useEffect(
     function checkAuthentication() {
       if (!isAuthLoading && !isAuthenticated) {
@@ -54,11 +106,17 @@ export default function ChatPage() {
     [isAuthenticated, isAuthLoading, router]
   );
 
-  const handleConfigure = (e: React.FormEvent) => {
+  const handleManualConfigure = (e: React.FormEvent) => {
     e.preventDefault();
-    if (apiKey.trim()) {
+    if (manualApiKey.trim()) {
+      setUseManualKey(true);
       setIsConfigured(true);
     }
+  };
+
+  const handleUseStoredKey = () => {
+    setUseManualKey(false);
+    setIsConfigured(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -69,14 +127,9 @@ export default function ChatPage() {
     }
   };
 
-  const handlePasteAPIKey = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('Pasted API Key:', e.target.value);
-    setApiKey(e.target.value);
-  };
-
-  if (isAuthLoading) {
+  if (isAuthLoading || isLoadingConfig) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-3xl px-4 py-8 pt-24 sm:px-6 lg:px-8">
         <div className="space-y-6">
           <div className="h-8 w-48 animate-pulse rounded bg-foreground/10" />
           <div className="h-48 animate-pulse rounded-none bg-foreground/10" />
@@ -98,11 +151,35 @@ export default function ChatPage() {
               Configure AI Chat
             </h1>
             <p className="mt-2 text-sm text-foreground/70">
-              Enter your API key and select a provider to start chatting
+              {storedConfig?.hasApiKey
+                ? 'Use your saved API key or enter a different one'
+                : 'Enter your API key to start chatting'}
             </p>
           </div>
 
-          <form onSubmit={handleConfigure} className="space-y-4">
+          {/* Use stored key option */}
+          {storedConfig?.hasApiKey && (
+            <div className="rounded border border-foreground/10 bg-foreground/2 p-4">
+              <p className="mb-3 text-sm text-foreground/70">
+                You have a saved {storedConfig.provider} API key in your profile
+              </p>
+              <Button onClick={handleUseStoredKey} className="w-full">
+                Use Saved API Key
+              </Button>
+            </div>
+          )}
+
+          {/* Divider */}
+          {storedConfig?.hasApiKey && (
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-foreground/10" />
+              <span className="text-xs text-foreground/40">or</span>
+              <div className="h-px flex-1 bg-foreground/10" />
+            </div>
+          )}
+
+          {/* Manual entry form */}
+          <form onSubmit={handleManualConfigure} className="space-y-4">
             <div className="space-y-2">
               <label
                 htmlFor="provider"
@@ -110,11 +187,10 @@ export default function ChatPage() {
               >
                 LLM Provider
               </label>
-
               <Select
                 id="provider"
-                value={provider}
-                onChange={e => setProvider(e.target.value as LLMProvider)}
+                value={manualProvider}
+                onChange={e => setManualProvider(e.target.value as LLMProvider)}
               >
                 <option value="anthropic">Anthropic (Claude)</option>
                 <option value="openai">OpenAI (GPT)</option>
@@ -132,22 +208,26 @@ export default function ChatPage() {
               <Input
                 id="apiKey"
                 type="password"
-                value={apiKey}
-                onChange={handlePasteAPIKey}
+                value={manualApiKey}
+                onChange={e => setManualApiKey(e.target.value)}
                 placeholder={
-                  provider === 'anthropic'
+                  manualProvider === 'anthropic'
                     ? 'sk-ant-api03-...'
-                    : provider === 'google'
+                    : manualProvider === 'google'
                     ? 'AIzaSy...'
                     : 'sk-proj-...'
                 }
               />
               <p className="text-xs text-foreground/50">
-                Your API key is sent directly to the provider and is not stored.
+                This key will only be used for this session.{' '}
+                <Link href="/profile" className="text-accent hover:underline">
+                  Save a key in your profile
+                </Link>{' '}
+                to use it across all AI features.
               </p>
             </div>
 
-            <Button type="submit" disabled={!apiKey.trim()}>
+            <Button type="submit" disabled={!manualApiKey.trim()}>
               Start Chatting
             </Button>
           </form>
@@ -163,13 +243,25 @@ export default function ChatPage() {
         <div className="flex items-center gap-3">
           <h1 className="text-lg font-semibold">AI Chat</h1>
           <span className="rounded-full bg-foreground/10 px-2 py-0.5 text-xs text-foreground/70">
-            {provider === 'anthropic'
+            {effectiveProvider === 'anthropic'
               ? 'Claude'
-              : provider === 'google'
+              : effectiveProvider === 'google'
               ? 'Gemini'
               : 'GPT'}
           </span>
+          {!useManualKey && storedConfig?.hasApiKey && (
+            <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent">
+              Using saved key
+            </span>
+          )}
         </div>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => setIsConfigured(false)}
+        >
+          Change Provider
+        </Button>
       </div>
 
       {/* Messages */}
@@ -191,7 +283,7 @@ export default function ChatPage() {
               <div
                 className={`max-w-[80%] rounded-lg px-4 py-2 ${
                   message.role === 'user'
-                    ? 'bg-[#0aff64] text-black'
+                    ? 'bg-accent text-black'
                     : 'bg-foreground/10 text-foreground'
                 }`}
               >
@@ -242,18 +334,9 @@ export default function ChatPage() {
               disabled={isLoading}
               className="flex-1"
             />
-            <div className="flex gap-2">
-              <Button type="submit" disabled={isLoading || !inputValue.trim()}>
-                Send
-              </Button>
-
-              <Button
-                variant="secondary"
-                onClick={() => setIsConfigured(false)}
-              >
-                Change Provider
-              </Button>
-            </div>
+            <Button type="submit" disabled={isLoading || !inputValue.trim()}>
+              Send
+            </Button>
           </div>
         </form>
       </div>

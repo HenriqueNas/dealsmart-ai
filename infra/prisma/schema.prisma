@@ -25,6 +25,10 @@ model User {
   ageVerified      Boolean   @default(false)
   hubspotContactId String?   @unique
 
+  // LLM API key settings (encrypted)
+  llmApiKey        String?   // Encrypted API key for LLM provider
+  llmProvider      LLMProvider @default(ANTHROPIC)
+
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
@@ -116,6 +120,12 @@ enum Role {
   USER
   CREATOR
   ADMIN
+}
+
+enum LLMProvider {
+  ANTHROPIC
+  OPENAI
+  GOOGLE
 }
 
 // ============================================================================

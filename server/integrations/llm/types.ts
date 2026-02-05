@@ -40,7 +40,7 @@ export interface GenerateSuggestionInput {
 export interface GenerateSuggestionResult {
   suggestion: string;
   model: string;
-  provider: 'anthropic' | 'openai';
+  provider: 'anthropic' | 'openai' | 'google';
   tokensUsed?: number;
   latencyMs: number;
 }
@@ -52,7 +52,7 @@ export interface LLMProvider {
   /**
    * Provider name
    */
-  name: 'anthropic' | 'openai';
+  name: 'anthropic' | 'openai' | 'google';
 
   /**
    * Check if the provider is configured and available

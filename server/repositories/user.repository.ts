@@ -1,4 +1,4 @@
-import type { Role, User } from '@/infra/prisma/generated/client';
+import type { LLMProvider, Role, User } from '@/infra/prisma/generated/client';
 import { prisma } from '@/infra/prisma/prisma';
 
 export interface CreateUserData {
@@ -14,6 +14,8 @@ export interface UpdateUserData {
   role?: Role;
   verified?: boolean;
   ageVerified?: boolean;
+  llmApiKey?: string | null;
+  llmProvider?: LLMProvider;
 }
 
 class UserRepository {

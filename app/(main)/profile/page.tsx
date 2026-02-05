@@ -1,12 +1,11 @@
 'use client';
 
+import { ApiKeySettings } from '@/app/components/profile/ApiKeySettings';
 import { CreatorUpgradeSection } from '@/app/components/profile/CreatorUpgradeSection';
 import { EditProfileForm } from '@/app/components/profile/EditProfileForm';
 import { InviteCreator } from '@/app/components/profile/InviteCreator';
 import { ProfileCard } from '@/app/components/profile/ProfileCard';
-import { Button } from '@/app/components/ui/Button';
 import { useAuth } from '@/app/hooks/useAuth';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -43,6 +42,7 @@ export default function ProfilePage() {
       <div className="space-y-6">
         <ProfileCard />
         <EditProfileForm />
+        <ApiKeySettings />
         <CreatorUpgradeSection />
         <InviteCreator />
       </div>
