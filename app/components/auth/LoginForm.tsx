@@ -2,9 +2,11 @@
 
 import { useAuth } from '@/app/hooks/useAuth';
 import { loginSchema } from '@/lib/schemas/auth.schema';
+import { Eye, EyeClosed } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+
 import { Button } from '../ui/Button';
 import {
   Card,
@@ -29,6 +31,12 @@ export function LoginForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -86,7 +94,7 @@ export function LoginForm() {
           />
 
           <Input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             label="Password"
             placeholder="Enter your password"
             value={password}
@@ -94,6 +102,19 @@ export function LoginForm() {
             error={errors.password}
             disabled={isLoading}
             autoComplete="current-password"
+            icon={
+              showPassword ? (
+                <Eye
+                  className="cursor-pointer"
+                  onClick={togglePasswordVisibility}
+                />
+              ) : (
+                <EyeClosed
+                  className="cursor-pointer"
+                  onClick={togglePasswordVisibility}
+                />
+              )
+            }
           />
 
           <Button type="submit" isLoading={isLoading} className="mt-2 w-full">

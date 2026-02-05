@@ -217,7 +217,7 @@ export function AISuggestionPanel({
               onClick={clear}
               disabled={isSending}
             >
-              b Ignore
+              Ignore
             </Button>
           </div>
         </div>

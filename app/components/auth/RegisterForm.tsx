@@ -2,9 +2,11 @@
 
 import { useAuth } from '@/app/hooks/useAuth';
 import { registerSchema } from '@/lib/schemas/auth.schema';
+import { Eye, EyeClosed } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+
 import { Button } from '../ui/Button';
 import {
   Card,
@@ -29,7 +31,13 @@ export function RegisterForm() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -97,6 +105,19 @@ export function RegisterForm() {
             error={errors.email}
             disabled={isLoading}
             autoComplete="email"
+            icon={
+              showPassword ? (
+                <Eye
+                  className="cursor-pointer"
+                  onClick={togglePasswordVisibility}
+                />
+              ) : (
+                <EyeClosed
+                  className="cursor-pointer"
+                  onClick={togglePasswordVisibility}
+                />
+              )
+            }
           />
 
           <div className="flex flex-col gap-2">

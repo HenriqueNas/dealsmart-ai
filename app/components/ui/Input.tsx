@@ -6,10 +6,14 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   hint?: string;
+  icon?: React.ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, hint, className = '', id: providedId, ...props }, ref) => {
+  (
+    { label, error, hint, className = '', id: providedId, icon, ...props },
+    ref
+  ) => {
     const generatedId = useId();
     const id = providedId || generatedId;
     const errorId = `${id}-error`;
@@ -25,12 +29,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
-        <input
-          ref={ref}
-          id={id}
-          aria-invalid={!!error}
-          aria-describedby={error ? errorId : hint ? hintId : undefined}
-          className={`
+        <div className="relative flex items-center gap-2">
+          <input
+            ref={ref}
+            id={id}
+            aria-invalid={!!error}
+            aria-describedby={error ? errorId : hint ? hintId : undefined}
+            className={`
             w-full px-3 py-2
             bg-background
             border rounded-none
@@ -45,8 +50,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             disabled:opacity-50 disabled:cursor-not-allowed
             ${className}
           `}
-          {...props}
-        />
+            {...props}
+          />
+
+          {icon && <div className="text-foreground/60">{icon}</div>}
+        </div>
         {error && (
           <p id={errorId} className="text-sm text-red-500" role="alert">
             {error}
