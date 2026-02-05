@@ -78,6 +78,16 @@ export async function GET(request: NextRequest) {
       usingUserToken: hasUserToken,
     });
   } catch (error) {
+    // Handle HubSpot authentication errors with a user-friendly message
+    const statusCode = (error as { code?: number })?.code;
+    if (statusCode === 401) {
+      return successResponse({
+        contacts: [],
+        hasMore: false,
+        configured: false,
+        message: 'HubSpot authentication failed. Please check your access token in your profile settings. Make sure you have the required scopes (crm.objects.contacts.read).',
+      });
+    }
     return errorResponse(error);
   }
 }

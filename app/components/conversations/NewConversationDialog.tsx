@@ -27,6 +27,7 @@ export function NewConversationDialog({ isOpen, onClose }: NewConversationDialog
   const [error, setError] = useState<string | null>(null);
   const [searchFilter, setSearchFilter] = useState('');
   const [hubspotConfigured, setHubspotConfigured] = useState(true);
+  const [hubspotMessage, setHubspotMessage] = useState<string | null>(null);
 
   // Manual hubspot contact ID entry (fallback when HubSpot is not configured)
   const [manualContactId, setManualContactId] = useState('');
@@ -41,6 +42,7 @@ export function NewConversationDialog({ isOpen, onClose }: NewConversationDialog
         contacts: HubSpotContact[];
         hasMore: boolean;
         configured: boolean;
+        message?: string;
       }> = await res.json();
 
       if (!data.success) {
@@ -49,6 +51,7 @@ export function NewConversationDialog({ isOpen, onClose }: NewConversationDialog
 
       setContacts(data.data?.contacts || []);
       setHubspotConfigured(data.data?.configured ?? false);
+      setHubspotMessage(data.data?.message || null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load contacts');
     } finally {
@@ -216,6 +219,13 @@ export function NewConversationDialog({ isOpen, onClose }: NewConversationDialog
           {!isLoading && hubspotConfigured && contacts.length > 0 && filteredContacts.length === 0 && (
             <div className="px-6 py-8 text-center">
               <p className="text-sm text-foreground/40">No contacts match your search</p>
+            </div>
+          )}
+
+          {/* HubSpot configuration message */}
+          {!isLoading && !hubspotConfigured && hubspotMessage && (
+            <div className="mx-6 mt-3 rounded border border-yellow-500/20 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-400">
+              {hubspotMessage}
             </div>
           )}
 
